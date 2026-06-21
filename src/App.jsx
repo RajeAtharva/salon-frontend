@@ -1,18 +1,306 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
+const API = 'http://localhost:8080/api'
 const AREAS = ['All', 'Kothrud', 'Wakad', 'Baner', 'Hinjewadi']
 
-const inputStyle = {
-    width: '100%', padding: '10px', marginBottom: '12px',
-    borderRadius: '8px', border: '1px solid #cbd5e0',
-    fontSize: '15px', background: 'white', color: '#1a202c'
+// ============ LOGIN SCREEN ============
+function Login({ onLogin }) {
+    const [username, setUsername] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState('')
+
+    const fillDemo = (type) => {
+        if (type === 'customer') {
+            setUsername('Atharva')
+            setPassword('cust123')
+        } else {
+            setUsername('Royal')
+            setPassword('owner123')
+        }
+    }
+
+    const handleLogin = () => {
+        axios.post(`${API}/auth/login`, { username, password })
+            .then(res => {
+                if (res.data.token) {
+                    setError('')
+                    onLogin(res.data)
+                } else {
+                    setError(res.data.message || 'Invalid username or password')
+                }
+            })
+            .catch(() => setError('Could not connect to server'))
+    }
+
+    return (
+        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f4f8', padding: '20px', fontFamily: 'Arial' }}>
+            <div style={{ background: 'white', borderRadius: '14px', padding: '32px', width: '100%', maxWidth: '380px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
+                    <div style={{ width: '42px', height: '42px', background: '#1a1a2e', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f0c040', fontSize: '20px' }}>✂️</div>
+                    <div>
+                        <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a202c' }}>SalonQ</div>
+                        <div style={{ fontSize: '12px', color: '#718096' }}>Smart Queue Management</div>
+                    </div>
+                </div>
+
+                <div style={{ fontSize: '17px', fontWeight: 'bold', color: '#1a202c', marginBottom: '2px' }}>Welcome back</div>
+                <div style={{ fontSize: '13px', color: '#718096', marginBottom: '20px' }}>Log in to continue</div>
+
+                <div style={{ marginBottom: '18px' }}>
+                    <div style={{ fontSize: '12px', color: '#718096', marginBottom: '8px' }}>Try a demo account:</div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <div onClick={() => fillDemo('customer')} style={{
+                            flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px',
+                            background: '#f8fafc', cursor: 'pointer', fontSize: '12px', color: '#4a5568', textAlign: 'center'
+                        }}>
+                            <div style={{ fontWeight: 'bold', color: '#1a202c', marginBottom: '2px' }}>Customer</div>
+                            Atharva / cust123
+                        </div>
+                        <div onClick={() => fillDemo('owner')} style={{
+                            flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px',
+                            background: '#f8fafc', cursor: 'pointer', fontSize: '12px', color: '#4a5568', textAlign: 'center'
+                        }}>
+                            <div style={{ fontWeight: 'bold', color: '#1a202c', marginBottom: '2px' }}>Salon Owner</div>
+                            Royal / owner123
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ marginBottom: '14px' }}>
+                    <label style={{ fontSize: '13px', color: '#718096', display: 'block', marginBottom: '6px' }}>Username</label>
+                    <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Enter username"
+                           style={{ width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid #cbd5e0', borderRadius: '8px', background: 'white', color: '#1a202c' }} />
+                </div>
+
+                <div style={{ marginBottom: '8px' }}>
+                    <label style={{ fontSize: '13px', color: '#718096', display: 'block', marginBottom: '6px' }}>Password</label>
+                    <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter password"
+                           style={{ width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid #cbd5e0', borderRadius: '8px', background: 'white', color: '#1a202c' }} />
+                </div>
+
+                {error && (
+                    <div style={{ fontSize: '12px', color: '#c53030', marginBottom: '10px' }}>⚠️ {error}</div>
+                )}
+
+                <button onClick={handleLogin} style={{
+                    width: '100%', padding: '11px', background: '#1a1a2e', color: '#f0c040',
+                    border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold',
+                    cursor: 'pointer', marginTop: '8px'
+                }}>
+                    Log in
+                </button>
+            </div>
+        </div>
+    )
+}
+
+// ============ TOP NAV ============
+function TopNav({ user, brand, onLogout }) {
+    return (
+        <div style={{ background: '#1a1a2e', color: '#f0f0f0', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px', fontWeight: 'bold', color: '#f0c040' }}>
+                ✂️ {brand}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <span style={{ fontSize: '13px', color: '#aaa' }}>{user}</span>
+                <button onClick={onLogout} style={{
+                    background: 'transparent', border: '1px solid #444', color: '#ccc',
+                    padding: '6px 14px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer'
+                }}>Logout</button>
+            </div>
+        </div>
+    )
+}
+
+// ============ CUSTOMER VIEW ============
+function CustomerView({ userName, token, onLogout }) {
+    const [salons, setSalons] = useState([])
+    const [search, setSearch] = useState('')
+    const [area, setArea] = useState('All')
+    const [queueInfo, setQueueInfo] = useState({})
+    const [modalSalon, setModalSalon] = useState(null)
+    const [barbers, setBarbers] = useState([])
+    const [form, setForm] = useState({ customerName: userName, customerPhone: '', service: 'Haircut', barberId: '' })
+    const [success, setSuccess] = useState(false)
+
+    useEffect(() => {
+        const url = area === 'All' ? `${API}/salons` : `${API}/salons/area/${area}`
+        axios.get(url).then(res => {
+            setSalons(res.data)
+            res.data.forEach(s => fetchQueue(s.id))
+        })
+    }, [area])
+
+    const fetchQueue = (id) => {
+        axios.get(`${API}/bookings/salon/${id}/queue`).then(res =>
+            setQueueInfo(prev => ({ ...prev, [id]: res.data })))
+    }
+
+    const filtered = salons.filter(s =>
+        s.name.toLowerCase().includes(search.toLowerCase()) ||
+        s.area.toLowerCase().includes(search.toLowerCase())
+    )
+
+    const openModal = (salon) => {
+        setModalSalon(salon)
+        setSuccess(false)
+        setForm({ customerName: userName, customerPhone: '', service: 'Haircut', barberId: '' })
+        axios.get(`${API}/barbers/salon/${salon.id}`).then(res => setBarbers(res.data))
+    }
+
+    const waitColor = (wait) => {
+        if (wait <= 15) return { bg: '#eaf3de', text: '#3b6d11' }
+        if (wait <= 30) return { bg: '#faeeda', text: '#854f0b' }
+        return { bg: '#fcebeb', text: '#a32d2d' }
+    }
+
+    const confirmBooking = () => {
+        if (!form.customerPhone || !form.barberId) {
+            alert('Please fill phone number and select a barber!')
+            return
+        }
+        axios.post(`${API}/bookings`, {
+            customerName: form.customerName,
+            customerPhone: form.customerPhone,
+            service: form.service,
+            salon: { id: modalSalon.id },
+            barber: { id: form.barberId }
+        }).then(() => {
+            setSuccess(true)
+            fetchQueue(modalSalon.id)
+        })
+    }
+
+    return (
+        <div style={{ minHeight: '100vh', background: '#f0f4f8', fontFamily: 'Arial' }}>
+            <TopNav brand="SalonQ" user={userName} onLogout={onLogout} />
+
+            <div style={{ padding: '24px', maxWidth: '700px', margin: '0 auto' }}>
+                <input
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    placeholder="Search salons..."
+                    style={{ width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid #cbd5e0', borderRadius: '8px', marginBottom: '16px', background: 'white', color: '#1a202c' }}
+                />
+
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                    {AREAS.map(a => (
+                        <div key={a} onClick={() => setArea(a)} style={{
+                            padding: '7px 16px', borderRadius: '20px', fontSize: '12px', cursor: 'pointer',
+                            background: area === a ? '#1a1a2e' : 'white',
+                            color: area === a ? '#f0c040' : '#718096',
+                            border: area === a ? '1px solid #1a1a2e' : '1px solid #e2e8f0'
+                        }}>{a}</div>
+                    ))}
+                </div>
+
+                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1a202c', marginBottom: '12px' }}>
+                    {filtered.length} salon{filtered.length !== 1 ? 's' : ''} nearby
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    {filtered.map(salon => {
+                        const q = queueInfo[salon.id]
+                        const wait = q ? q.estimatedWaitMinutes : 0
+                        const wc = waitColor(wait)
+                        return (
+                            <div key={salon.id} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 20px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
+                                    <div>
+                                        <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a202c' }}>{salon.name}</div>
+                                        <div style={{ fontSize: '12px', color: '#718096', marginTop: '2px' }}>📍 {salon.area}</div>
+                                    </div>
+                                    <div style={{ padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', background: wc.bg, color: wc.text }}>
+                                        {wait} min wait
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', gap: '16px' }}>
+                                    <span style={{ fontSize: '12px', color: '#718096' }}>👥 {q ? q.totalInQueue : 0} in queue</span>
+                                    <span style={{ fontSize: '12px', color: '#718096' }}>⭐ {salon.rating}</span>
+                                </div>
+                                <button onClick={() => openModal(salon)} style={{
+                                    marginTop: '10px', width: '100%', padding: '9px', background: '#1a1a2e',
+                                    color: '#f0c040', border: 'none', borderRadius: '8px', fontSize: '13px', cursor: 'pointer'
+                                }}>Book appointment</button>
+                            </div>
+                        )
+                    })}
+                </div>
+            </div>
+
+            {/* Booking Modal */}
+            {modalSalon && (
+                <div onClick={(e) => e.target === e.currentTarget && setModalSalon(null)} style={{
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '20px'
+                }}>
+                    <div style={{ background: 'white', borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '380px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                            <span style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a202c' }}>{modalSalon.name}</span>
+                            <button onClick={() => setModalSalon(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#718096' }}>✕</button>
+                        </div>
+
+                        {!success ? (
+                            <>
+                                <div style={{ fontSize: '12px', color: '#718096', marginBottom: '6px' }}>Phone number</div>
+                                <input value={form.customerPhone} onChange={e => setForm({ ...form, customerPhone: e.target.value })}
+                                       placeholder="98765 43210"
+                                       style={{ width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid #cbd5e0', borderRadius: '8px', marginBottom: '14px', background: 'white', color: '#1a202c' }} />
+
+                                <div style={{ fontSize: '12px', color: '#718096', marginBottom: '8px' }}>Select service</div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '14px' }}>
+                                    {['Haircut', 'Beard Trim', 'Hair + Beard', 'Facial'].map(svc => (
+                                        <div key={svc} onClick={() => setForm({ ...form, service: svc })} style={{
+                                            padding: '8px', border: '1px solid', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', textAlign: 'center',
+                                            borderColor: form.service === svc ? '#1a1a2e' : '#cbd5e0',
+                                            background: form.service === svc ? '#eeedfe' : 'white',
+                                            color: form.service === svc ? '#1a1a2e' : '#718096'
+                                        }}>{svc}</div>
+                                    ))}
+                                </div>
+
+                                <div style={{ fontSize: '12px', color: '#718096', marginBottom: '8px' }}>Select barber</div>
+                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '18px' }}>
+                                    {barbers.map(b => (
+                                        <div key={b.id} onClick={() => b.status === 'AVAILABLE' && setForm({ ...form, barberId: b.id })} style={{
+                                            padding: '8px 14px', border: '2px solid', borderRadius: '8px', fontSize: '13px', textAlign: 'center',
+                                            cursor: b.status === 'BUSY' ? 'not-allowed' : 'pointer',
+                                            borderColor: form.barberId === b.id ? '#1a1a2e' : '#e2e8f0',
+                                            background: form.barberId === b.id ? '#eeedfe' : 'white',
+                                            color: b.status === 'BUSY' ? '#a0aec0' : '#1a202c'
+                                        }}>
+                                            <div style={{ fontWeight: 'bold' }}>{b.name}</div>
+                                            <div style={{ fontSize: '10px', color: b.status === 'AVAILABLE' ? '#3b6d11' : '#a32d2d' }}>
+                                                {b.status === 'AVAILABLE' ? 'Available' : 'Busy'}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <button onClick={confirmBooking} style={{
+                                    width: '100%', padding: '10px', background: '#1a1a2e', color: '#f0c040',
+                                    border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer'
+                                }}>Confirm booking</button>
+                            </>
+                        ) : (
+                            <div style={{ background: '#eaf3de', border: '1px solid #c0dd97', borderRadius: '8px', padding: '14px', fontSize: '13px', color: '#3b6d11' }}>
+                                ✅ Booking confirmed at <strong>{modalSalon.name}</strong>! You'll get a WhatsApp reminder 10 min before your turn.
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    )
 }
 
 // ============ OWNER DASHBOARD ============
-function OwnerDashboard({ onBack }) {
+function OwnerView({ salonName, salonId, token, onLogout }) {
     const [barbers, setBarbers] = useState([])
     const [queue, setQueue] = useState([])
+    const [bookingsToday, setBookingsToday] = useState(0)
 
     useEffect(() => {
         fetchBarbers()
@@ -20,317 +308,141 @@ function OwnerDashboard({ onBack }) {
     }, [])
 
     const fetchBarbers = () => {
-        axios.get('http://localhost:8080/api/barbers/salon/1')
-            .then(res => setBarbers(res.data))
+        axios.get(`${API}/barbers/salon/${salonId}`).then(res => setBarbers(res.data))
     }
 
     const fetchQueue = () => {
-        axios.get('http://localhost:8080/api/bookings/salon/1/queue')
-            .then(res => setQueue(res.data.queue || []))
+        axios.get(`${API}/bookings/salon/${salonId}/queue`).then(res => {
+            setQueue(res.data.queue || [])
+        })
+        axios.get(`${API}/bookings/salon/${salonId}`).then(res => setBookingsToday(res.data.length))
     }
 
-    const updateStatus = (barberId, status) => {
-        axios.patch(`http://localhost:8080/api/barbers/${barberId}/status?status=${status}`)
-            .then(() => fetchBarbers())
+    const handlePatchError = (err) => {
+        if (err.response?.status === 401 || err.response?.status === 403) {
+            alert('Session expired, please log in again')
+            onLogout()
+        }
     }
 
-    const completeBooking = (bookingId) => {
-        axios.patch(`http://localhost:8080/api/bookings/${bookingId}/status?status=COMPLETED`)
-            .then(() => fetchQueue())
+    const toggleBarber = (barber) => {
+        const newStatus = barber.status === 'AVAILABLE' ? 'BUSY' : 'AVAILABLE'
+        axios.patch(`${API}/barbers/${barber.id}/status?status=${newStatus}`, null, {
+            headers: { Authorization: `Bearer ${token}` }
+        }).then(() => fetchBarbers()).catch(handlePatchError)
     }
+
+    const completeBooking = (id) => {
+        axios.patch(`${API}/bookings/${id}/status?status=COMPLETED`, null, {
+            headers: { Authorization: `Bearer ${token}` }
+        }).then(() => fetchQueue()).catch(handlePatchError)
+    }
+
+    const avgWait = queue.length > 0 ? queue.length * 15 : 0
 
     return (
-        <div style={{ minHeight: '100vh', background: '#f0f4f8', padding: '30px', fontFamily: 'Arial' }}>
-            <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+        <div style={{ minHeight: '100vh', background: '#f0f4f8', fontFamily: 'Arial' }}>
+            <TopNav brand={salonName} user="Owner Dashboard" onLogout={onLogout} />
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '30px' }}>
-                    <button onClick={onBack} style={{
-                        background: 'white', border: '1px solid #cbd5e0', borderRadius: '8px',
-                        padding: '8px 16px', cursor: 'pointer', color: '#4a5568'
-                    }}>← Back</button>
-                    <h1 style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a202c' }}>
-                        🏪 Owner Dashboard — Royal Salon
-                    </h1>
+            <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
+                    <div style={{ background: '#e2e8f0', borderRadius: '8px', padding: '14px 16px' }}>
+                        <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px' }}>Today's bookings</div>
+                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a202c' }}>{bookingsToday}</div>
+                    </div>
+                    <div style={{ background: '#e2e8f0', borderRadius: '8px', padding: '14px 16px' }}>
+                        <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px' }}>In queue</div>
+                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a202c' }}>{queue.length}</div>
+                    </div>
+                    <div style={{ background: '#e2e8f0', borderRadius: '8px', padding: '14px 16px' }}>
+                        <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px' }}>Avg wait</div>
+                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a202c' }}>{avgWait}m</div>
+                    </div>
                 </div>
 
-                {/* Barber Management */}
-                <div style={{
-                    background: 'white', borderRadius: '12px', padding: '20px',
-                    marginBottom: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                }}>
-                    <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px', color: '#1a202c' }}>
-                        💈 Barber Status
-                    </h2>
-                    {barbers.map(barber => (
-                        <div key={barber.id} style={{
-                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                            padding: '12px 0', borderBottom: '1px solid #f0f4f8'
-                        }}>
-                            <div>
-                                <p style={{ fontWeight: 'bold', color: '#1a202c' }}>{barber.name}</p>
-                                <span style={{
-                                    fontSize: '12px', padding: '2px 8px', borderRadius: '10px',
-                                    background: barber.status === 'AVAILABLE' ? '#d1fae5' : '#fee2e2',
-                                    color: barber.status === 'AVAILABLE' ? '#065f46' : '#991b1b'
-                                }}>
-                  {barber.status === 'AVAILABLE' ? '✅ Available' : '❌ Busy'}
-                </span>
-                            </div>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                                <button onClick={() => updateStatus(barber.id, 'AVAILABLE')}
-                                        disabled={barber.status === 'AVAILABLE'}
-                                        style={{
-                                            padding: '6px 12px', borderRadius: '6px', border: 'none',
-                                            background: barber.status === 'AVAILABLE' ? '#e2e8f0' : '#d1fae5',
-                                            color: barber.status === 'AVAILABLE' ? '#9ca3af' : '#065f46',
-                                            cursor: barber.status === 'AVAILABLE' ? 'not-allowed' : 'pointer',
-                                            fontWeight: 'bold', fontSize: '13px'
-                                        }}>
-                                    Mark Available
-                                </button>
-                                <button onClick={() => updateStatus(barber.id, 'BUSY')}
-                                        disabled={barber.status === 'BUSY'}
-                                        style={{
-                                            padding: '6px 12px', borderRadius: '6px', border: 'none',
-                                            background: barber.status === 'BUSY' ? '#e2e8f0' : '#fee2e2',
-                                            color: barber.status === 'BUSY' ? '#9ca3af' : '#991b1b',
-                                            cursor: barber.status === 'BUSY' ? 'not-allowed' : 'pointer',
-                                            fontWeight: 'bold', fontSize: '13px'
-                                        }}>
-                                    Mark Busy
-                                </button>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
 
-                {/* Queue Management */}
-                <div style={{
-                    background: 'white', borderRadius: '12px', padding: '20px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                }}>
-                    <h2 style={{ fontSize: '18px', fontWeight: 'bold', marginBottom: '16px', color: '#1a202c' }}>
-                        👥 Current Queue ({queue.length} waiting)
-                    </h2>
-                    {queue.length === 0 && (
-                        <p style={{ color: '#718096', textAlign: 'center' }}>No one in queue right now!</p>
-                    )}
-                    {queue.map((booking, index) => (
-                        <div key={booking.id} style={{
-                            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                            padding: '12px', marginBottom: '8px', borderRadius: '8px',
-                            background: '#f8fafc', border: '1px solid #e2e8f0'
-                        }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{
-                    width: '28px', height: '28px', borderRadius: '50%',
-                    background: '#6366f1', color: 'white', display: 'flex',
-                    alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 'bold'
-                }}>{index + 1}</span>
-                                <div>
-                                    <p style={{ fontWeight: 'bold', color: '#1a202c' }}>{booking.customerName}</p>
-                                    <p style={{ fontSize: '12px', color: '#718096' }}>
-                                        {booking.service} · {booking.barber?.name}
-                                    </p>
+                    <div>
+                        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 18px', marginBottom: '14px' }}>
+                            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1a202c', marginBottom: '12px' }}>👥 Barbers</div>
+                            {barbers.map(b => (
+                                <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 0', borderBottom: '1px solid #f0f4f8' }}>
+                                    <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#eeedfe', color: '#534ab7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 'bold' }}>
+                                        {b.name.slice(0, 2).toUpperCase()}
+                                    </div>
+                                    <span style={{ flex: 1, fontSize: '13px', fontWeight: 'bold', color: '#1a202c' }}>{b.name}</span>
+                                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: b.status === 'AVAILABLE' ? '#639922' : '#E24B4A' }}></span>
+                                    <button onClick={() => toggleBarber(b)} style={{
+                                        padding: '5px 10px', fontSize: '11px', borderRadius: '6px', cursor: 'pointer',
+                                        border: '1px solid #cbd5e0', background: '#f8fafc', color: '#4a5568'
+                                    }}>
+                                        {b.status === 'AVAILABLE' ? 'Mark busy' : 'Mark free'}
+                                    </button>
                                 </div>
-                            </div>
-                            <button onClick={() => completeBooking(booking.id)} style={{
-                                padding: '6px 14px', borderRadius: '6px', border: 'none',
-                                background: '#10b981', color: 'white', cursor: 'pointer',
-                                fontWeight: 'bold', fontSize: '13px'
-                            }}>
-                                ✅ Done
-                            </button>
+                            ))}
                         </div>
-                    ))}
-                </div>
 
+                        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 18px' }}>
+                            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1a202c', marginBottom: '12px' }}>🔔 Notifications</div>
+                            <div style={{ fontSize: '12px', color: '#718096', padding: '6px 0', borderBottom: '1px solid #f0f4f8' }}>📅 New bookings auto-update queue below</div>
+                            <div style={{ fontSize: '12px', color: '#718096', padding: '6px 0' }}>⏱️ Wait time recalculates automatically</div>
+                        </div>
+                    </div>
+
+                    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 18px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1a202c', marginBottom: '12px' }}>📋 Live queue</div>
+                        {queue.length === 0 && (
+                            <div style={{ fontSize: '13px', color: '#a0aec0', textAlign: 'center', padding: '20px 0' }}>Queue is empty</div>
+                        )}
+                        {queue.map((booking, i) => (
+                            <div key={booking.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 0', borderBottom: '1px solid #f0f4f8' }}>
+                                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#1a1a2e', color: '#f0c040', fontSize: '11px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    {i + 1}
+                                </div>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#1a202c' }}>{booking.customerName}</div>
+                                    <div style={{ fontSize: '11px', color: '#718096' }}>{booking.service} · {booking.barber?.name}</div>
+                                </div>
+                                <button onClick={() => completeBooking(booking.id)} style={{
+                                    padding: '5px 10px', fontSize: '11px', borderRadius: '6px', cursor: 'pointer',
+                                    border: '1px solid #c0dd97', background: '#eaf3de', color: '#3b6d11'
+                                }}>Done</button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     )
 }
 
-// ============ CUSTOMER APP ============
+// ============ MAIN APP ============
 function App() {
-    const [page, setPage] = useState('customer')
-    const [salons, setSalons] = useState([])
-    const [selectedArea, setSelectedArea] = useState('All')
-    const [selectedSalon, setSelectedSalon] = useState(null)
-    const [barbers, setBarbers] = useState([])
-    const [queueInfo, setQueueInfo] = useState({})
-    const [form, setForm] = useState({ customerName: '', customerPhone: '', service: 'Haircut', barberId: '' })
-    const [bookingDone, setBookingDone] = useState(false)
+    const [user, setUser] = useState(null)
+    const [token, setToken] = useState('')
 
-    useEffect(() => {
-        const url = selectedArea === 'All'
-            ? 'http://localhost:8080/api/salons'
-            : `http://localhost:8080/api/salons/area/${selectedArea}`
-        axios.get(url).then(res => {
-            setSalons(res.data)
-            res.data.forEach(salon => fetchQueue(salon.id))
-        })
-    }, [selectedArea])
-
-    const fetchQueue = (salonId) => {
-        axios.get(`http://localhost:8080/api/bookings/salon/${salonId}/queue`)
-            .then(res => setQueueInfo(prev => ({ ...prev, [salonId]: res.data })))
-    }
-
-    const handleBook = (salon) => {
-        setSelectedSalon(salon)
-        setBookingDone(false)
-        setForm({ customerName: '', customerPhone: '', service: 'Haircut', barberId: '' })
-        axios.get(`http://localhost:8080/api/barbers/salon/${salon.id}`)
-            .then(res => setBarbers(res.data))
-    }
-
-    const handleSubmit = () => {
-        if (!form.customerName || !form.customerPhone || !form.barberId) {
-            alert('Please fill all fields and select a barber!')
-            return
-        }
-        axios.post('http://localhost:8080/api/bookings', {
-            customerName: form.customerName,
-            customerPhone: form.customerPhone,
-            service: form.service,
-            salon: { id: selectedSalon.id },
-            barber: { id: form.barberId }
-        }).then(() => {
-            setBookingDone(true)
-            fetchQueue(selectedSalon.id)
+    const handleLogin = (loginData) => {
+        setToken(loginData.token)
+        setUser({
+            ...loginData,
+            role: loginData.role?.toLowerCase(),
+            name: loginData.username
         })
     }
 
-    if (page === 'owner') return <OwnerDashboard onBack={() => setPage('customer')} />
+    const handleLogout = () => {
+        setUser(null)
+        setToken('')
+    }
 
-    return (
-        <div style={{ minHeight: '100vh', background: '#f0f4f8', padding: '30px', fontFamily: 'Arial' }}>
+    if (!user) return <Login onLogin={handleLogin} />
 
-            <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-                <h1 style={{ fontSize: '32px', color: '#1a202c', fontWeight: 'bold' }}>✂️ Salon Queue App</h1>
-                <p style={{ color: '#718096' }}>Real-time salon waiting times — Pune</p>
-                <button onClick={() => setPage('owner')} style={{
-                    marginTop: '10px', padding: '8px 20px', borderRadius: '8px',
-                    border: 'none', background: '#1a202c', color: 'white',
-                    cursor: 'pointer', fontSize: '13px'
-                }}>🔑 Owner Login</button>
-            </div>
+    if (user.role === 'owner') {
+        return <OwnerView salonName={user.name} salonId={user.salonId} token={token} onLogout={handleLogout} />
+    }
 
-            <div style={{ maxWidth: '600px', margin: '0 auto 20px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                {AREAS.map(area => (
-                    <button key={area} onClick={() => setSelectedArea(area)} style={{
-                        padding: '8px 18px', borderRadius: '20px', border: 'none', cursor: 'pointer',
-                        fontWeight: 'bold', fontSize: '14px',
-                        background: selectedArea === area ? '#6366f1' : 'white',
-                        color: selectedArea === area ? 'white' : '#4a5568',
-                        boxShadow: '0 1px 4px rgba(0,0,0,0.1)'
-                    }}>{area}</button>
-                ))}
-            </div>
-
-            <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-                {salons.map(salon => {
-                    const queue = queueInfo[salon.id]
-                    return (
-                        <div key={salon.id} style={{
-                            background: 'white', borderRadius: '12px', padding: '20px',
-                            marginBottom: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                            borderLeft: '4px solid #6366f1'
-                        }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <h2 style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a202c' }}>{salon.name}</h2>
-                                <span style={{ background: '#fef3c7', color: '#92400e', padding: '4px 10px', borderRadius: '20px', fontSize: '14px' }}>
-                  ⭐ {salon.rating}
-                </span>
-                            </div>
-                            <p style={{ color: '#718096', margin: '8px 0' }}>📍 {salon.area} — {salon.address}</p>
-                            <p style={{ color: '#718096' }}>📞 {salon.contact}</p>
-                            <div style={{ marginTop: '12px', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-                                <span style={{ background: '#d1fae5', color: '#065f46', padding: '4px 12px', borderRadius: '20px', fontSize: '13px' }}>🟢 Open</span>
-                                <span style={{ background: '#e0e7ff', color: '#3730a3', padding: '4px 12px', borderRadius: '20px', fontSize: '13px' }}>
-                  👥 {queue ? queue.totalInQueue : 0} in queue
-                </span>
-                                <span style={{ background: '#fef3c7', color: '#92400e', padding: '4px 12px', borderRadius: '20px', fontSize: '13px' }}>
-                  ⏱️ ~{queue ? queue.estimatedWaitMinutes : 0} min wait
-                </span>
-                            </div>
-                            <button onClick={() => handleBook(salon)} style={{
-                                marginTop: '14px', width: '100%', background: '#6366f1', color: 'white',
-                                border: 'none', borderRadius: '8px', padding: '10px', fontSize: '15px',
-                                cursor: 'pointer', fontWeight: 'bold'
-                            }}>Book Appointment</button>
-                        </div>
-                    )
-                })}
-
-                {selectedSalon && !bookingDone && (
-                    <div style={{
-                        background: 'white', borderRadius: '12px', padding: '24px',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)', marginTop: '10px'
-                    }}>
-                        <h2 style={{ marginBottom: '16px', color: '#1a202c' }}>📋 Book at {selectedSalon.name}</h2>
-                        <input placeholder="Your Name" value={form.customerName}
-                               onChange={e => setForm({ ...form, customerName: e.target.value })}
-                               style={inputStyle} />
-                        <input placeholder="Phone Number" value={form.customerPhone}
-                               onChange={e => setForm({ ...form, customerPhone: e.target.value })}
-                               style={inputStyle} />
-                        <select value={form.service} onChange={e => setForm({ ...form, service: e.target.value })}
-                                style={inputStyle}>
-                            <option>Haircut</option>
-                            <option>Beard Trim</option>
-                            <option>Hair + Beard</option>
-                            <option>Facial</option>
-                        </select>
-
-                        <p style={{ fontWeight: 'bold', marginBottom: '10px', color: '#1a202c' }}>Select Barber:</p>
-                        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '16px' }}>
-                            {barbers.map(barber => (
-                                <button key={barber.id} onClick={() => barber.status === 'AVAILABLE' && setForm({ ...form, barberId: barber.id })} style={{
-                                    padding: '8px 16px', borderRadius: '8px', border: '2px solid',
-                                    cursor: barber.status === 'BUSY' ? 'not-allowed' : 'pointer',
-                                    borderColor: form.barberId === barber.id ? '#6366f1' : '#cbd5e0',
-                                    background: form.barberId === barber.id ? '#eef2ff' : 'white',
-                                    color: barber.status === 'BUSY' ? '#9ca3af' : '#1a202c',
-                                    fontWeight: 'bold', fontSize: '14px'
-                                }}>
-                                    {barber.name}
-                                    <span style={{ display: 'block', fontSize: '11px', color: barber.status === 'AVAILABLE' ? '#10b981' : '#ef4444' }}>
-                    {barber.status === 'AVAILABLE' ? '✅ Available' : '❌ Busy'}
-                  </span>
-                                </button>
-                            ))}
-                        </div>
-
-                        <button onClick={handleSubmit} style={{
-                            width: '100%', background: '#10b981', color: 'white', border: 'none',
-                            borderRadius: '8px', padding: '12px', fontSize: '16px', cursor: 'pointer', fontWeight: 'bold'
-                        }}>✅ Confirm Booking</button>
-                        <button onClick={() => setSelectedSalon(null)} style={{
-                            width: '100%', background: 'transparent', color: '#718096',
-                            border: '1px solid #cbd5e0', borderRadius: '8px', padding: '10px',
-                            fontSize: '14px', cursor: 'pointer', marginTop: '8px'
-                        }}>Cancel</button>
-                    </div>
-                )}
-
-                {bookingDone && (
-                    <div style={{
-                        background: '#d1fae5', borderRadius: '12px', padding: '24px',
-                        textAlign: 'center', marginTop: '10px'
-                    }}>
-                        <h2 style={{ color: '#065f46', fontSize: '24px' }}>🎉 Booking Confirmed!</h2>
-                        <p style={{ color: '#065f46', marginTop: '8px' }}>Your booking at {selectedSalon.name} is confirmed!</p>
-                        <button onClick={() => { setSelectedSalon(null); setBookingDone(false) }} style={{
-                            marginTop: '16px', background: '#6366f1', color: 'white',
-                            border: 'none', borderRadius: '8px', padding: '10px 24px',
-                            fontSize: '15px', cursor: 'pointer'
-                        }}>Go Back</button>
-                    </div>
-                )}
-            </div>
-        </div>
-    )
+    return <CustomerView userName={user.name} token={token} onLogout={handleLogout} />
 }
 
 export default App
