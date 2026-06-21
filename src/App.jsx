@@ -122,6 +122,7 @@ function CustomerView({ userName, token, onLogout }) {
     const [queueInfo, setQueueInfo] = useState({})
     const [modalSalon, setModalSalon] = useState(null)
     const [barbers, setBarbers] = useState([])
+    const [services, setServices] = useState([])
     const [form, setForm] = useState({ customerName: userName, customerPhone: '', service: 'Haircut', barberId: '' })
     const [success, setSuccess] = useState(false)
     const [activeTab, setActiveTab] = useState('browse')
@@ -159,8 +160,13 @@ function CustomerView({ userName, token, onLogout }) {
     const openModal = (salon) => {
         setModalSalon(salon)
         setSuccess(false)
-        setForm({ customerName: userName, customerPhone: '', service: 'Haircut', barberId: '' })
+        setServices([])
+        setForm({ customerName: userName, customerPhone: '', service: '', barberId: '' })
         axios.get(`${API}/barbers/salon/${salon.id}`).then(res => setBarbers(res.data))
+        axios.get(`${API}/services/salon/${salon.id}`).then(res => {
+            setServices(res.data)
+            setForm(prev => ({ ...prev, service: res.data[0]?.serviceName || '' }))
+        })
     }
 
     const waitColor = (wait) => {
@@ -184,8 +190,8 @@ function CustomerView({ userName, token, onLogout }) {
     }
 
     const confirmBooking = () => {
-        if (!form.customerPhone || !form.barberId) {
-            alert('Please fill phone number and select a barber!')
+        if (!form.customerPhone || !form.service || !form.barberId) {
+            alert('Please fill phone number, select a service, and select a barber!')
             return
         }
         axios.post(`${API}/bookings`, {
@@ -327,13 +333,13 @@ function CustomerView({ userName, token, onLogout }) {
 
                                 <div style={{ fontSize: '12px', color: '#718096', marginBottom: '8px' }}>Select service</div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '14px' }}>
-                                    {['Haircut', 'Beard Trim', 'Hair + Beard', 'Facial'].map(svc => (
-                                        <div key={svc} onClick={() => setForm({ ...form, service: svc })} style={{
+                                    {services.map(service => (
+                                        <div key={service.id} onClick={() => setForm({ ...form, service: service.serviceName })} style={{
                                             padding: '8px', border: '1px solid', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', textAlign: 'center',
-                                            borderColor: form.service === svc ? '#1a1a2e' : '#cbd5e0',
-                                            background: form.service === svc ? '#eeedfe' : 'white',
-                                            color: form.service === svc ? '#1a1a2e' : '#718096'
-                                        }}>{svc}</div>
+                                            borderColor: form.service === service.serviceName ? '#1a1a2e' : '#cbd5e0',
+                                            background: form.service === service.serviceName ? '#eeedfe' : 'white',
+                                            color: form.service === service.serviceName ? '#1a1a2e' : '#718096'
+                                        }}>{service.serviceName} — ₹{service.price}</div>
                                     ))}
                                 </div>
 
@@ -377,10 +383,13 @@ function OwnerView({ salonName, salonId, token, onLogout }) {
     const [barbers, setBarbers] = useState([])
     const [queue, setQueue] = useState([])
     const [bookingsToday, setBookingsToday] = useState(0)
+    const [services, setServices] = useState([])
+    const [newService, setNewService] = useState({ serviceName: '', price: '' })
 
     useEffect(() => {
         fetchBarbers()
         fetchQueue()
+        fetchServices()
     }, [])
 
     const fetchBarbers = () => {
@@ -392,6 +401,10 @@ function OwnerView({ salonName, salonId, token, onLogout }) {
             setQueue(res.data.queue || [])
         })
         axios.get(`${API}/bookings/salon/${salonId}`).then(res => setBookingsToday(res.data.length))
+    }
+
+    const fetchServices = () => {
+        axios.get(`${API}/services/salon/${salonId}`).then(res => setServices(res.data))
     }
 
     const handlePatchError = (err) => {
@@ -412,6 +425,24 @@ function OwnerView({ salonName, salonId, token, onLogout }) {
         axios.patch(`${API}/bookings/${id}/status?status=COMPLETED`, null, {
             headers: { Authorization: `Bearer ${token}` }
         }).then(() => fetchQueue()).catch(handlePatchError)
+    }
+
+    const addService = () => {
+        if (!newService.serviceName || !newService.price) {
+            alert('Please enter service name and price')
+            return
+        }
+
+        axios.post(`${API}/services`, {
+            salon: { id: salonId },
+            serviceName: newService.serviceName,
+            price: Number(newService.price)
+        }, {
+            headers: { Authorization: `Bearer ${token}` }
+        }).then(() => {
+            setNewService({ serviceName: '', price: '' })
+            fetchServices()
+        }).catch(handlePatchError)
     }
 
     const avgWait = queue.length > 0 ? queue.length * 15 : 0
@@ -457,6 +488,39 @@ function OwnerView({ salonName, salonId, token, onLogout }) {
                                     </button>
                                 </div>
                             ))}
+                        </div>
+
+                        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 18px', marginBottom: '14px' }}>
+                            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1a202c', marginBottom: '12px' }}>Service pricing</div>
+                            {services.length === 0 && (
+                                <div style={{ fontSize: '13px', color: '#a0aec0', textAlign: 'center', padding: '12px 0' }}>No services added</div>
+                            )}
+                            {services.map(service => (
+                                <div key={service.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid #f0f4f8' }}>
+                                    <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#1a202c' }}>{service.serviceName}</span>
+                                    <span style={{ fontSize: '13px', color: '#718096' }}>₹{service.price}</span>
+                                </div>
+                            ))}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px', gap: '8px', marginTop: '14px' }}>
+                                <input
+                                    value={newService.serviceName}
+                                    onChange={e => setNewService({ ...newService, serviceName: e.target.value })}
+                                    placeholder="Service name"
+                                    style={{ padding: '9px 10px', fontSize: '13px', border: '1px solid #cbd5e0', borderRadius: '8px', background: 'white', color: '#1a202c' }}
+                                />
+                                <input
+                                    type="number"
+                                    value={newService.price}
+                                    onChange={e => setNewService({ ...newService, price: e.target.value })}
+                                    placeholder="Price"
+                                    style={{ padding: '9px 10px', fontSize: '13px', border: '1px solid #cbd5e0', borderRadius: '8px', background: 'white', color: '#1a202c' }}
+                                />
+                            </div>
+                            <button onClick={addService} style={{
+                                width: '100%', padding: '9px', background: '#1a1a2e', color: '#f0c040',
+                                border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold',
+                                cursor: 'pointer', marginTop: '8px'
+                            }}>Add service</button>
                         </div>
 
                         <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 18px' }}>
