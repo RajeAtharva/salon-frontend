@@ -124,6 +124,9 @@ function CustomerView({ userName, token, onLogout }) {
     const [barbers, setBarbers] = useState([])
     const [form, setForm] = useState({ customerName: userName, customerPhone: '', service: 'Haircut', barberId: '' })
     const [success, setSuccess] = useState(false)
+    const [activeTab, setActiveTab] = useState('browse')
+    const [lastPhone, setLastPhone] = useState('')
+    const [bookingHistory, setBookingHistory] = useState([])
 
     useEffect(() => {
         const url = area === 'All' ? `${API}/salons` : `${API}/salons/area/${area}`
@@ -133,9 +136,19 @@ function CustomerView({ userName, token, onLogout }) {
         })
     }, [area])
 
+    useEffect(() => {
+        if (activeTab === 'bookings' && lastPhone) {
+            fetchBookingHistory(lastPhone)
+        }
+    }, [activeTab, lastPhone])
+
     const fetchQueue = (id) => {
         axios.get(`${API}/bookings/salon/${id}/queue`).then(res =>
             setQueueInfo(prev => ({ ...prev, [id]: res.data })))
+    }
+
+    const fetchBookingHistory = (phone) => {
+        axios.get(`${API}/bookings/customer/${phone}`).then(res => setBookingHistory(res.data))
     }
 
     const filtered = salons.filter(s =>
@@ -156,6 +169,20 @@ function CustomerView({ userName, token, onLogout }) {
         return { bg: '#fcebeb', text: '#a32d2d' }
     }
 
+    const statusColor = (status) => {
+        if (status === 'PENDING') return { bg: '#faeeda', text: '#854f0b' }
+        if (status === 'IN_SERVICE') return { bg: '#e0f2fe', text: '#075985' }
+        if (status === 'COMPLETED') return { bg: '#eaf3de', text: '#3b6d11' }
+        if (status === 'CANCELLED') return { bg: '#fcebeb', text: '#a32d2d' }
+        return { bg: '#e2e8f0', text: '#4a5568' }
+    }
+
+    const formatBookingDate = (booking) => {
+        const value = booking.bookingTime || booking.createdAt || booking.dateTime || booking.date
+        if (!value) return 'Time not available'
+        return new Date(value).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
+    }
+
     const confirmBooking = () => {
         if (!form.customerPhone || !form.barberId) {
             alert('Please fill phone number and select a barber!')
@@ -169,6 +196,7 @@ function CustomerView({ userName, token, onLogout }) {
             barber: { id: form.barberId }
         }).then(() => {
             setSuccess(true)
+            setLastPhone(form.customerPhone)
             fetchQueue(modalSalon.id)
         })
     }
@@ -178,12 +206,29 @@ function CustomerView({ userName, token, onLogout }) {
             <TopNav brand="SalonQ" user={userName} onLogout={onLogout} />
 
             <div style={{ padding: '24px', maxWidth: '700px', margin: '0 auto' }}>
-                <input
-                    value={search}
-                    onChange={e => setSearch(e.target.value)}
-                    placeholder="Search salons..."
-                    style={{ width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid #cbd5e0', borderRadius: '8px', marginBottom: '16px', background: 'white', color: '#1a202c' }}
-                />
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                    <button onClick={() => setActiveTab('browse')} style={{
+                        flex: 1, padding: '9px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
+                        border: activeTab === 'browse' ? '1px solid #1a1a2e' : '1px solid #e2e8f0',
+                        background: activeTab === 'browse' ? '#1a1a2e' : 'white',
+                        color: activeTab === 'browse' ? '#f0c040' : '#718096'
+                    }}>Browse Salons</button>
+                    <button onClick={() => setActiveTab('bookings')} style={{
+                        flex: 1, padding: '9px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
+                        border: activeTab === 'bookings' ? '1px solid #1a1a2e' : '1px solid #e2e8f0',
+                        background: activeTab === 'bookings' ? '#1a1a2e' : 'white',
+                        color: activeTab === 'bookings' ? '#f0c040' : '#718096'
+                    }}>My Bookings</button>
+                </div>
+
+                {activeTab === 'browse' && (
+                    <>
+                        <input
+                            value={search}
+                            onChange={e => setSearch(e.target.value)}
+                            placeholder="Search salons..."
+                            style={{ width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid #cbd5e0', borderRadius: '8px', marginBottom: '16px', background: 'white', color: '#1a202c' }}
+                        />
 
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
                     {AREAS.map(a => (
@@ -228,6 +273,37 @@ function CustomerView({ userName, token, onLogout }) {
                         )
                     })}
                 </div>
+
+                    </>
+                )}
+
+                {activeTab === 'bookings' && (
+                    !lastPhone ? (
+                        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '18px', fontSize: '13px', color: '#718096', textAlign: 'center' }}>
+                            Make a booking first to see your history here.
+                        </div>
+                    ) : (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {bookingHistory.map(booking => {
+                                const sc = statusColor(booking.status)
+                                return (
+                                    <div key={booking.id} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 20px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
+                                            <div>
+                                                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a202c' }}>{booking.salon?.name || booking.salonName}</div>
+                                                <div style={{ fontSize: '12px', color: '#718096', marginTop: '2px' }}>{booking.service} with {booking.barber?.name || booking.barberName}</div>
+                                            </div>
+                                            <div style={{ padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', background: sc.bg, color: sc.text }}>
+                                                {booking.status}
+                                            </div>
+                                        </div>
+                                        <div style={{ fontSize: '12px', color: '#718096' }}>{formatBookingDate(booking)}</div>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    )
+                )}
             </div>
 
             {/* Booking Modal */}
