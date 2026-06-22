@@ -486,6 +486,8 @@ function OwnerView({ salonName, salonId, token, onLogout }) {
     const [bookingsToday, setBookingsToday] = useState(0)
     const [services, setServices] = useState([])
     const [newService, setNewService] = useState({ serviceName: '', price: '' })
+    const [showAnalytics, setShowAnalytics] = useState(false)
+    const [analyticsData, setAnalyticsData] = useState(null)
 
     useEffect(() => {
         fetchBarbers()
@@ -546,7 +548,23 @@ function OwnerView({ salonName, salonId, token, onLogout }) {
         }).catch(handlePatchError)
     }
 
+    const toggleAnalytics = () => {
+        if (showAnalytics) {
+            setShowAnalytics(false)
+            return
+        }
+
+        axios.get(`${API}/analytics/salon/${salonId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        }).then(res => {
+            setAnalyticsData(res.data)
+            setShowAnalytics(true)
+        }).catch(handlePatchError)
+    }
+
     const avgWait = queue.length > 0 ? queue.length * 15 : 0
+    const peakHours = analyticsData?.peakHours || []
+    const maxPeakBookings = Math.max(...peakHours.map(hour => hour.bookingCount || 0), 0)
 
     return (
         <div style={{ minHeight: '100vh', background: '#f0f4f8', fontFamily: 'Arial' }}>
@@ -568,6 +586,71 @@ function OwnerView({ salonName, salonId, token, onLogout }) {
                         <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a202c' }}>{avgWait}m</div>
                     </div>
                 </div>
+
+                <button onClick={toggleAnalytics} style={{
+                    width: '100%', padding: '10px', background: '#1a1a2e', color: '#f0c040',
+                    border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold',
+                    cursor: 'pointer', marginBottom: '14px'
+                }}>
+                    {showAnalytics ? 'Hide Analytics' : 'View Analytics'}
+                </button>
+
+                {showAnalytics && analyticsData && (
+                    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 18px', marginBottom: '14px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1a202c', marginBottom: '12px' }}>Analytics</div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '12px' }}>
+                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
+                                <div style={{ fontSize: '11px', color: '#718096', marginBottom: '4px' }}>Bookings today</div>
+                                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a202c' }}>{analyticsData.totalBookingsToday || 0}</div>
+                            </div>
+                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
+                                <div style={{ fontSize: '11px', color: '#718096', marginBottom: '4px' }}>Completed</div>
+                                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a202c' }}>{analyticsData.completedToday || 0}</div>
+                            </div>
+                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
+                                <div style={{ fontSize: '11px', color: '#718096', marginBottom: '4px' }}>Pending now</div>
+                                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a202c' }}>{analyticsData.pendingNow || 0}</div>
+                            </div>
+                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
+                                <div style={{ fontSize: '11px', color: '#718096', marginBottom: '4px' }}>Revenue</div>
+                                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a202c' }}>₹{analyticsData.totalRevenue || 0}</div>
+                            </div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
+                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
+                                <div style={{ fontSize: '11px', color: '#718096', marginBottom: '4px' }}>Top service</div>
+                                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a202c' }}>{analyticsData.topService || 'N/A'}</div>
+                            </div>
+                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
+                                <div style={{ fontSize: '11px', color: '#718096', marginBottom: '4px' }}>Top barber</div>
+                                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a202c' }}>{analyticsData.topBarber || 'N/A'}</div>
+                            </div>
+                        </div>
+
+                        <div style={{ fontSize: '12px', color: '#718096', marginBottom: '10px', fontWeight: 'bold' }}>Peak hours</div>
+                        {maxPeakBookings === 0 ? (
+                            <div style={{ fontSize: '13px', color: '#a0aec0', textAlign: 'center', padding: '16px 0', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#f8fafc' }}>
+                                No booking data for today yet
+                            </div>
+                        ) : (
+                            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', minHeight: '112px', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#f8fafc', overflowX: 'auto' }}>
+                                {peakHours.map(hour => {
+                                    const count = hour.bookingCount || 0
+                                    const barHeight = maxPeakBookings ? Math.max((count / maxPeakBookings) * 80, count > 0 ? 8 : 0) : 0
+                                    return (
+                                        <div key={hour.hour} style={{ minWidth: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
+                                            <div style={{ fontSize: '11px', color: '#718096' }}>{count}</div>
+                                            <div style={{ width: '24px', height: `${barHeight}px`, background: '#1a1a2e', borderRadius: '6px 6px 0 0', border: '1px solid #f0c040' }}></div>
+                                            <div style={{ fontSize: '11px', color: '#718096' }}>{hour.hour}</div>
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
 
@@ -668,7 +751,7 @@ function App() {
         setUser({
             ...loginData,
             role: loginData.role?.toLowerCase(),
-            name: loginData.username
+            name: loginData.name || loginData.username
         })
     }
 
