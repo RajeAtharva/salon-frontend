@@ -4,10 +4,284 @@ import axios from 'axios'
 const API = 'http://localhost:8080/api'
 const AREAS = ['All', 'Kothrud', 'Wakad', 'Baner', 'Hinjewadi']
 
+const navy = '#1a1a2e'
+const gold = '#f0c040'
+const pageBg = '#f0f4f8'
+const border = '#e2e8f0'
+const text = '#1a202c'
+const muted = '#718096'
+const darkBg = '#101010'
+const darkPanel = '#2f2f2d'
+const darkCard = '#11112a'
+const darkBorder = 'rgba(255,255,255,0.18)'
+const darkMuted = '#9ca3af'
+
+const cardStyle = {
+    background: 'white',
+    border: `1px solid ${border}`,
+    borderRadius: '12px',
+    padding: '18px'
+}
+
+const buttonPrimary = {
+    background: navy,
+    color: gold,
+    border: 'none',
+    borderRadius: '8px',
+    padding: '10px 14px',
+    fontWeight: 'bold',
+    cursor: 'pointer'
+}
+
+const darkInputStyle = {
+    background: darkPanel,
+    color: 'white',
+    border: `1px solid ${darkBorder}`,
+    borderRadius: '8px',
+    padding: '11px 12px',
+    fontSize: '14px'
+}
+
+const darkPageButton = {
+    background: 'transparent',
+    color: 'white',
+    border: `1px solid ${darkBorder}`,
+    borderRadius: '7px',
+    padding: '9px 14px',
+    fontWeight: 'bold',
+    cursor: 'pointer'
+}
+
+function PublicNav({ onHome, onFindSalon, onOwnerLogin, onLogin }) {
+    return (
+        <div style={{ height: '44px', background: '#17172b', color: 'white', padding: '0 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontFamily: 'Arial, system-ui, sans-serif' }}>
+            <div style={{ color: gold, fontWeight: 'bold', fontSize: '15px' }}>✂ SalonQ</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button onClick={onHome} style={darkPageButton}>Home</button>
+                <button onClick={onFindSalon} style={darkPageButton}>Find Salon</button>
+                <button onClick={onOwnerLogin} style={darkPageButton}>Dashboard</button>
+                <button onClick={onLogin} style={darkPageButton}>Login</button>
+                <span style={{ background: '#0f7a3b', color: '#9ae6b4', borderRadius: '999px', padding: '5px 9px', fontSize: '11px', fontWeight: 'bold' }}>● Live</span>
+            </div>
+        </div>
+    )
+}
+
+// ============ LANDING PAGE ============
+function Landing({ onFindSalon, onOwnerLogin }) {
+    const features = [
+        ['📍', 'Live queue', 'Track salon queues and wait times before you leave home.'],
+        ['⚡', 'Instant booking', 'Book a slot with the preferred service and barber.'],
+        ['★', 'Ratings', 'Read recent customer reviews and average ratings.'],
+        ['📊', 'Analytics', 'Owners see bookings, revenue, top services, and peak hours.'],
+        ['🧭', 'Area filter', 'Find salons by Kothrud, Wakad, Baner, or Hinjewadi.'],
+        ['🔒', 'Secure login', 'Role-based customer and owner dashboards.']
+    ]
+
+    const reviews = [
+        ['Atharva', 'Booked in seconds and reached exactly when my turn was close.'],
+        ['Riya', 'The queue estimate was accurate and the salon was ready.'],
+        ['Omkar', 'Clean owner dashboard. Service pricing and queue updates are simple.']
+    ]
+
+    return (
+        <div style={{ minHeight: '100vh', background: pageBg, fontFamily: 'Arial, system-ui, sans-serif' }}>
+            <section style={{ background: navy, color: 'white', padding: '72px 24px 58px' }}>
+                <div style={{ maxWidth: '1040px', margin: '0 auto' }}>
+                    <div style={{ display: 'inline-flex', border: `1px solid ${gold}`, color: gold, borderRadius: '999px', padding: '7px 12px', fontSize: '12px', fontWeight: 'bold', marginBottom: '20px' }}>
+                        Real-time queue tracking
+                    </div>
+                    <h1 style={{ fontSize: '50px', lineHeight: '1.05', margin: '0 0 16px', maxWidth: '620px' }}>Skip the wait. Book your slot.</h1>
+                    <p style={{ color: '#cbd5e0', fontSize: '17px', lineHeight: '1.6', maxWidth: '600px', margin: '0 0 26px' }}>
+                        SalonQ connects customers with live salon queues, instant booking, reviews, and professional owner analytics.
+                    </p>
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        <button onClick={onFindSalon} style={{ background: gold, color: navy, border: 'none', borderRadius: '8px', padding: '12px 18px', fontWeight: 'bold', cursor: 'pointer' }}>Find a Salon</button>
+                        <button onClick={onOwnerLogin} style={{ background: 'transparent', color: gold, border: `1px solid ${gold}`, borderRadius: '8px', padding: '12px 18px', fontWeight: 'bold', cursor: 'pointer' }}>Owner Login</button>
+                    </div>
+                </div>
+            </section>
+
+            <div style={{ maxWidth: '1040px', margin: '-28px auto 34px', padding: '0 24px' }}>
+                <div style={{ ...cardStyle, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', textAlign: 'center', boxShadow: '0 10px 30px rgba(26,26,46,0.08)' }}>
+                    <div><div style={{ fontSize: '24px', fontWeight: 'bold', color: navy }}>5</div><div style={{ fontSize: '12px', color: muted }}>salons</div></div>
+                    <div><div style={{ fontSize: '24px', fontWeight: 'bold', color: navy }}>120+</div><div style={{ fontSize: '12px', color: muted }}>bookings today</div></div>
+                    <div><div style={{ fontSize: '24px', fontWeight: 'bold', color: navy }}>4.6★</div><div style={{ fontSize: '12px', color: muted }}>avg rating</div></div>
+                </div>
+            </div>
+
+            <main style={{ maxWidth: '1040px', margin: '0 auto', padding: '0 24px 40px' }}>
+                <h2 style={{ color: text, margin: '0 0 14px' }}>Everything for modern salons</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '36px' }}>
+                    {features.map(([icon, title, desc]) => (
+                        <div key={title} style={cardStyle}>
+                            <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: navy, color: gold, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '12px', fontSize: '18px' }}>{icon}</div>
+                            <div style={{ fontWeight: 'bold', color: text, marginBottom: '6px' }}>{title}</div>
+                            <div style={{ fontSize: '13px', color: muted, lineHeight: '1.45' }}>{desc}</div>
+                        </div>
+                    ))}
+                </div>
+
+                <h2 style={{ color: text, margin: '0 0 14px' }}>Loved by customers</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px', marginBottom: '40px' }}>
+                    {reviews.map(([name, review]) => (
+                        <div key={name} style={cardStyle}>
+                            <div style={{ color: gold, marginBottom: '10px' }}>★★★★★</div>
+                            <div style={{ fontSize: '13px', color: muted, lineHeight: '1.5', marginBottom: '12px' }}>"{review}"</div>
+                            <div style={{ fontWeight: 'bold', color: text }}>{name}</div>
+                        </div>
+                    ))}
+                </div>
+            </main>
+
+            <footer style={{ background: navy, color: '#cbd5e0', padding: '34px 24px 18px' }}>
+                <div style={{ maxWidth: '1040px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '24px' }}>
+                    <div>
+                        <div style={{ color: gold, fontWeight: 'bold', fontSize: '18px', marginBottom: '8px' }}>✂️ SalonQ</div>
+                        <div style={{ fontSize: '13px', lineHeight: '1.5' }}>Smart queue management for customers and salon owners.</div>
+                    </div>
+                    <div><div style={{ color: 'white', fontWeight: 'bold', marginBottom: '8px' }}>Product</div><div style={{ fontSize: '13px' }}>Browse salons<br />Bookings<br />Reviews</div></div>
+                    <div><div style={{ color: 'white', fontWeight: 'bold', marginBottom: '8px' }}>Owners</div><div style={{ fontSize: '13px' }}>Dashboard<br />Analytics<br />Service pricing</div></div>
+                    <div><div style={{ color: 'white', fontWeight: 'bold', marginBottom: '8px' }}>Info</div><div style={{ fontSize: '13px' }}>Support<br />Privacy<br />Status</div></div>
+                </div>
+                <div style={{ maxWidth: '1040px', margin: '24px auto 0', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.12)', display: 'flex', justifyContent: 'space-between', fontSize: '12px' }}>
+                    <span>© 2026 SalonQ. All rights reserved.</span>
+                    <span style={{ color: '#9ae6b4' }}>● All systems operational</span>
+                </div>
+            </footer>
+        </div>
+    )
+}
+
+// ============ REFERENCE LANDING PAGE ============
+function LandingReference({ onFindSalon, onOwnerLogin }) {
+    const featureCards = [
+        ['◷', 'Live Queue tracking', 'See real-time waiting times and queue positions without calling the salon.'],
+        ['▣', 'Instant booking', 'Book your slot with your preferred barber in just a few taps.'],
+        ['☆', 'Ratings & reviews', 'Read honest reviews from real customers before you visit.'],
+        ['▥', 'Owner analytics', 'Revenue tracking, peak hours, and top barber insights for salon owners.'],
+        ['⌖', 'Area filter', 'Browse salons by area — Kothrud, Wakad, Baner, Hinjewadi and more.'],
+        ['◔', 'Secure login', 'JWT-based authentication with separate roles for customers and owners.']
+    ]
+
+    const customerReviews = [
+        ['Vishal K.', 'Kothrud', 'No more waiting outside. I book my slot and arrive just in time. Royal Salon is the best!'],
+        ['Priya M.', 'Wakad', 'Rahul does an amazing job. Booked through SalonQ and got the exact time I wanted.'],
+        ['Sanjay R.', 'Baner', 'Best beard trim in Kothrud. The queue tracker is super accurate. Saved me 45 minutes!']
+    ]
+
+    const navButton = {
+        background: 'transparent',
+        color: 'white',
+        border: '1px solid rgba(255,255,255,0.28)',
+        borderRadius: '7px',
+        padding: '8px 16px',
+        fontWeight: 'bold',
+        cursor: 'pointer'
+    }
+
+    return (
+        <div style={{ minHeight: '100vh', background: '#101010', fontFamily: 'Arial, system-ui, sans-serif', color: 'white' }}>
+            <section style={{ background: '#17172b', borderBottom: '1px solid rgba(255,255,255,0.10)', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+                <div style={{ width: '100%', boxSizing: 'border-box', padding: '0 42px', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                    <nav style={{ height: '56px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ color: gold, fontWeight: 'bold', fontSize: '15px' }}>✂ SalonQ</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <button onClick={onFindSalon} style={navButton}>Home</button>
+                            <button onClick={onFindSalon} style={navButton}>Find Salon</button>
+                            <button onClick={onOwnerLogin} style={navButton}>Dashboard</button>
+                            <button onClick={onFindSalon} style={navButton}>Login</button>
+                            <span style={{ background: '#0f7a3b', color: '#9ae6b4', borderRadius: '999px', padding: '5px 9px', fontSize: '11px', fontWeight: 'bold' }}>● Live</span>
+                        </div>
+                    </nav>
+
+                    <div style={{ textAlign: 'center', flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 0' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', border: '1px solid rgba(240,192,64,0.25)', background: 'rgba(240,192,64,0.08)', color: gold, borderRadius: '999px', padding: '6px 13px', fontSize: '12px', fontWeight: 'bold', marginBottom: '20px' }}>
+                            ◷ Real-time queue tracking
+                        </div>
+                        <h1 style={{ fontSize: '58px', lineHeight: '1.05', margin: '0 0 14px', fontWeight: 'bold' }}>
+                            Skip the wait.<br /><span style={{ color: gold }}>Book your slot.</span>
+                        </h1>
+                        <p style={{ color: '#9ca3af', fontSize: '16px', lineHeight: '1.45', maxWidth: '520px', margin: '0 auto 28px' }}>
+                            Find nearby salons, check live waiting times, and book appointments in seconds — all in one place.
+                        </p>
+                        <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
+                            <button onClick={onFindSalon} style={{ ...navButton, padding: '10px 16px' }}>⌕ Find a Salon</button>
+                            <button onClick={onOwnerLogin} style={{ ...navButton, padding: '10px 16px' }}>Owner Login</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ borderTop: '1px solid rgba(255,255,255,0.10)' }}>
+                    <div style={{ width: '100%', maxWidth: '720px', margin: '0 auto', padding: '22px 20px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '22px', textAlign: 'center' }}>
+                        <div><div style={{ color: gold, fontSize: '18px', fontWeight: 'bold' }}>5</div><div style={{ color: '#9ca3af', fontSize: '10px' }}>Salons in Pune</div></div>
+                        <div><div style={{ color: gold, fontSize: '18px', fontWeight: 'bold' }}>120+</div><div style={{ color: '#9ca3af', fontSize: '10px' }}>Bookings today</div></div>
+                        <div><div style={{ color: gold, fontSize: '18px', fontWeight: 'bold' }}>4.6★</div><div style={{ color: '#9ca3af', fontSize: '10px' }}>Avg rating</div></div>
+                        <div><div style={{ color: gold, fontSize: '18px', fontWeight: 'bold' }}>0 min</div><div style={{ color: '#9ca3af', fontSize: '10px' }}>Avg wait</div></div>
+                    </div>
+                </div>
+            </section>
+
+            <main style={{ width: '100%', margin: 0, padding: 0, background: '#101010' }}>
+                <section style={{ minHeight: '100vh', boxSizing: 'border-box', padding: '76px 42px', display: 'flex', flexDirection: 'column', justifyContent: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                    <div style={{ width: '100%', maxWidth: '1180px', margin: '0 auto' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(240,192,64,0.12)', color: gold, borderRadius: '999px', padding: '5px 10px', fontSize: '11px', fontWeight: 'bold', marginBottom: '14px' }}>? Why SalonQ</div>
+                        <h2 style={{ color: 'white', margin: '0 0 8px', fontSize: '34px', fontWeight: 'bold' }}>Everything you need.</h2>
+                        <p style={{ color: 'white', margin: '0 0 26px', fontSize: '15px' }}>From browsing to booking ? all in one app.</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
+                            {featureCards.map(([icon, title, desc]) => (
+                                <div key={title} style={{ background: '#2f2f2d', border: '1px solid rgba(255,255,255,0.18)', borderRadius: '10px', padding: '24px', minHeight: '150px' }}>
+                                    <div style={{ width: '34px', height: '34px', borderRadius: '7px', background: '#11112a', color: gold, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '14px', fontSize: '16px' }}>{icon}</div>
+                                    <div style={{ fontWeight: 'bold', color: 'white', marginBottom: '8px', fontSize: '15px' }}>{title}</div>
+                                    <div style={{ fontSize: '13px', color: 'white', lineHeight: '1.45' }}>{desc}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+
+                <section style={{ minHeight: '78vh', boxSizing: 'border-box', padding: '76px 42px 56px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <div style={{ width: '100%', maxWidth: '1180px', margin: '0 auto' }}>
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', background: 'rgba(240,192,64,0.12)', color: gold, borderRadius: '999px', padding: '5px 10px', fontSize: '11px', fontWeight: 'bold', marginBottom: '14px' }}>? What customers say</div>
+                        <h2 style={{ color: 'white', margin: '0 0 8px', fontSize: '34px', fontWeight: 'bold' }}>Trusted by Pune.</h2>
+                        <p style={{ color: 'white', margin: '0 0 26px', fontSize: '15px' }}>Real reviews from real customers.</p>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '14px' }}>
+                            {customerReviews.map(([name, areaName, review]) => (
+                                <div key={name} style={{ background: '#2f2f2d', border: '1px solid rgba(255,255,255,0.18)', borderRadius: '10px', padding: '24px', minHeight: '150px' }}>
+                                    <div style={{ color: gold, marginBottom: '10px', fontSize: '13px' }}>?????</div>
+                                    <div style={{ fontSize: '13px', color: 'white', lineHeight: '1.5', marginBottom: '14px' }}>"{review}"</div>
+                                    <div style={{ fontWeight: 'bold', color: 'white', fontSize: '13px' }}>{name}</div>
+                                    <div style={{ color: 'white', fontSize: '12px' }}>{areaName}</div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </section>
+            </main>
+
+            <footer style={{ background: '#17172b', color: '#6b7280', padding: '24px 20px 18px' }}>
+                <div style={{ maxWidth: '1040px', margin: '0 auto', display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '24px' }}>
+                    <div>
+                        <div style={{ color: gold, fontWeight: 'bold', fontSize: '15px', marginBottom: '8px' }}>✂ SalonQ</div>
+                        <div style={{ fontSize: '13px', lineHeight: '1.55' }}>Smart queue management for Pune salons. Book, track, and manage — all in one place.</div>
+                    </div>
+                    <div><div style={{ color: 'white', fontWeight: 'bold', marginBottom: '8px', fontSize: '13px' }}>Product</div><div style={{ fontSize: '13px', lineHeight: '1.7' }}>Find Salon<br />Book Appointment<br />My Bookings<br />Reviews</div></div>
+                    <div><div style={{ color: 'white', fontWeight: 'bold', marginBottom: '8px', fontSize: '13px' }}>Owners</div><div style={{ fontSize: '13px', lineHeight: '1.7' }}>Dashboard<br />Queue Management<br />Analytics<br />Register Salon</div></div>
+                    <div><div style={{ color: 'white', fontWeight: 'bold', marginBottom: '8px', fontSize: '13px' }}>Info</div><div style={{ fontSize: '13px', lineHeight: '1.7' }}>About<br />Privacy Policy<br />Contact</div></div>
+                </div>
+                <div style={{ maxWidth: '1040px', margin: '24px auto 0', paddingTop: '14px', borderTop: '1px solid rgba(255,255,255,0.12)', display: 'flex', justifyContent: 'space-between', fontSize: '11px' }}>
+                    <span>© 2026 SalonQ. Built with Spring Boot + React.</span>
+                    <span style={{ color: '#48bb78' }}>● All systems operational</span>
+                </div>
+            </footer>
+        </div>
+    )
+}
+
 // ============ LOGIN SCREEN ============
-function Login({ onLogin }) {
-    const [username, setUsername] = useState('')
-    const [password, setPassword] = useState('')
+function Login({ onLogin, initialType = 'customer', onBack }) {
+    const [username, setUsername] = useState(initialType === 'owner' ? 'Royal' : '')
+    const [password, setPassword] = useState(initialType === 'owner' ? 'owner123' : '')
     const [error, setError] = useState('')
 
     const fillDemo = (type) => {
@@ -34,81 +308,83 @@ function Login({ onLogin }) {
     }
 
     return (
-        <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f0f4f8', padding: '20px', fontFamily: 'Arial' }}>
-            <div style={{ background: 'white', borderRadius: '14px', padding: '32px', width: '100%', maxWidth: '380px', boxShadow: '0 4px 20px rgba(0,0,0,0.08)' }}>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '24px' }}>
-                    <div style={{ width: '42px', height: '42px', background: '#1a1a2e', borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f0c040', fontSize: '20px' }}>✂️</div>
+        <div style={{ minHeight: '100vh', background: darkBg, fontFamily: 'Arial, system-ui, sans-serif', color: 'white' }}>
+            <PublicNav
+                onHome={onBack}
+                onFindSalon={() => fillDemo('customer')}
+                onOwnerLogin={() => fillDemo('owner')}
+                onLogin={() => {}}
+            />
+            <div style={{ minHeight: 'calc(100vh - 44px)', display: 'flex', justifyContent: 'center', padding: '38px 20px' }}>
+            <div style={{ background: darkPanel, border: `1px solid ${darkBorder}`, borderRadius: '8px', width: '100%', maxWidth: '255px', padding: '24px', height: 'fit-content' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                    <div style={{ width: '36px', height: '36px', background: darkCard, borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: gold, fontSize: '17px' }}>✂</div>
                     <div>
-                        <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#1a202c' }}>SalonQ</div>
-                        <div style={{ fontSize: '12px', color: '#718096' }}>Smart Queue Management</div>
+                        <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'white' }}>Welcome to SalonQ</div>
+                        <div style={{ fontSize: '11px', color: 'white' }}>Sign in to continue</div>
                     </div>
                 </div>
 
-                <div style={{ fontSize: '17px', fontWeight: 'bold', color: '#1a202c', marginBottom: '2px' }}>Welcome back</div>
-                <div style={{ fontSize: '13px', color: '#718096', marginBottom: '20px' }}>Log in to continue</div>
-
-                <div style={{ marginBottom: '18px' }}>
-                    <div style={{ fontSize: '12px', color: '#718096', marginBottom: '8px' }}>Try a demo account:</div>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                        <div onClick={() => fillDemo('customer')} style={{
-                            flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px',
-                            background: '#f8fafc', cursor: 'pointer', fontSize: '12px', color: '#4a5568', textAlign: 'center'
-                        }}>
-                            <div style={{ fontWeight: 'bold', color: '#1a202c', marginBottom: '2px' }}>Customer</div>
-                            Atharva / cust123
-                        </div>
-                        <div onClick={() => fillDemo('owner')} style={{
-                            flex: 1, padding: '10px', border: '1px solid #e2e8f0', borderRadius: '8px',
-                            background: '#f8fafc', cursor: 'pointer', fontSize: '12px', color: '#4a5568', textAlign: 'center'
-                        }}>
-                            <div style={{ fontWeight: 'bold', color: '#1a202c', marginBottom: '2px' }}>Salon Owner</div>
-                            Royal / owner123
-                        </div>
-                    </div>
+                <div style={{ color: 'white', fontSize: '12px', marginBottom: '8px' }}>Try a demo account</div>
+                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                    <button onClick={() => fillDemo('customer')} style={{ flex: 1, padding: '10px', border: `1px solid ${darkBorder}`, borderRadius: '7px', background: darkPanel, cursor: 'pointer', textAlign: 'center' }}>
+                        <div style={{ fontWeight: 'bold', color: 'white', fontSize: '12px' }}>Customer</div>
+                        <div style={{ color: 'white', fontSize: '10px', marginTop: '2px' }}>Atharva / cust123</div>
+                    </button>
+                    <button onClick={() => fillDemo('owner')} style={{ flex: 1, padding: '10px', border: `1px solid ${darkBorder}`, borderRadius: '7px', background: darkPanel, cursor: 'pointer', textAlign: 'center' }}>
+                        <div style={{ fontWeight: 'bold', color: 'white', fontSize: '12px' }}>Salon Owner</div>
+                        <div style={{ color: 'white', fontSize: '10px', marginTop: '2px' }}>Royal / owner123</div>
+                    </button>
                 </div>
 
-                <div style={{ marginBottom: '14px' }}>
-                    <label style={{ fontSize: '13px', color: '#718096', display: 'block', marginBottom: '6px' }}>Username</label>
-                    <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Enter username"
-                           style={{ width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid #cbd5e0', borderRadius: '8px', background: 'white', color: '#1a202c' }} />
-                </div>
+                <label style={{ fontSize: '11px', color: 'white', display: 'block', marginBottom: '6px' }}>Username</label>
+                <input value={username} onChange={e => setUsername(e.target.value)} placeholder="Enter username"
+                       style={{ ...darkInputStyle, width: '100%', boxSizing: 'border-box', marginBottom: '12px' }} />
 
-                <div style={{ marginBottom: '8px' }}>
-                    <label style={{ fontSize: '13px', color: '#718096', display: 'block', marginBottom: '6px' }}>Password</label>
-                    <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter password"
-                           style={{ width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid #cbd5e0', borderRadius: '8px', background: 'white', color: '#1a202c' }} />
-                </div>
+                <label style={{ fontSize: '11px', color: 'white', display: 'block', marginBottom: '6px' }}>Password</label>
+                <input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter password"
+                       style={{ ...darkInputStyle, width: '100%', boxSizing: 'border-box', marginBottom: '14px' }} />
 
-                {error && (
-                    <div style={{ fontSize: '12px', color: '#c53030', marginBottom: '10px' }}>⚠️ {error}</div>
-                )}
+                {error && <div style={{ fontSize: '12px', color: '#c53030', marginBottom: '10px' }}>⚠️ {error}</div>}
 
-                <button onClick={handleLogin} style={{
-                    width: '100%', padding: '11px', background: '#1a1a2e', color: '#f0c040',
-                    border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold',
-                    cursor: 'pointer', marginTop: '8px'
-                }}>
-                    Log in
-                </button>
+                <button onClick={handleLogin} style={{ ...darkPageButton, width: '100%', padding: '10px', fontSize: '13px' }}>Sign in</button>
+            </div>
             </div>
         </div>
     )
 }
 
 // ============ TOP NAV ============
-function TopNav({ user, brand, onLogout }) {
+function TopNav({ user, role, activeTab, setActiveTab, onLogout }) {
     return (
-        <div style={{ background: '#1a1a2e', color: '#f0f0f0', padding: '14px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '16px', fontWeight: 'bold', color: '#f0c040' }}>
-                ✂️ {brand}
+        <div style={{ height: '44px', background: '#17172b', color: 'white', padding: '0 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontFamily: 'Arial, system-ui, sans-serif' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                <div style={{ color: gold, fontSize: '15px', fontWeight: 'bold' }}>✂ SalonQ</div>
+                {role === 'customer' ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {[
+                            ['browse', 'Browse Salons'],
+                            ['bookings', 'My Bookings']
+                        ].map(([key, label]) => (
+                            <button key={key} onClick={() => setActiveTab(key)} style={{
+                                ...darkPageButton,
+                                color: activeTab === key ? gold : 'white',
+                                borderColor: activeTab === key ? gold : darkBorder,
+                                cursor: 'pointer',
+                                fontSize: '13px'
+                            }}>{label}</button>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <button style={{ ...darkPageButton, color: gold, borderColor: gold }}>Dashboard</button>
+                    </div>
+                )}
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                <span style={{ fontSize: '13px', color: '#aaa' }}>{user}</span>
-                <button onClick={onLogout} style={{
-                    background: 'transparent', border: '1px solid #444', color: '#ccc',
-                    padding: '6px 14px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer'
-                }}>Logout</button>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <span style={{ background: '#0f7a3b', color: '#9ae6b4', borderRadius: '999px', padding: '5px 9px', fontSize: '11px', fontWeight: 'bold' }}>● Live</span>
+                <span style={{ fontSize: '12px', color: '#e2e8f0' }}>{user}</span>
+                <button onClick={onLogout} style={{ ...darkPageButton, padding: '7px 12px', fontSize: '12px' }}>Logout</button>
             </div>
         </div>
     )
@@ -206,8 +482,8 @@ function CustomerView({ userName, token, onLogout }) {
     }
 
     const waitColor = (wait) => {
-        if (wait <= 15) return { bg: '#eaf3de', text: '#3b6d11' }
-        if (wait <= 30) return { bg: '#faeeda', text: '#854f0b' }
+        if (wait === 0) return { bg: '#eaf3de', text: '#3b6d11' }
+        if (wait < 30) return { bg: '#faeeda', text: '#854f0b' }
         return { bg: '#fcebeb', text: '#a32d2d' }
     }
 
@@ -261,137 +537,120 @@ function CustomerView({ userName, token, onLogout }) {
     }
 
     return (
-        <div style={{ minHeight: '100vh', background: '#f0f4f8', fontFamily: 'Arial' }}>
-            <TopNav brand="SalonQ" user={userName} onLogout={onLogout} />
+        <div style={{ minHeight: '100vh', background: darkBg, fontFamily: 'Arial, system-ui, sans-serif', color: 'white' }}>
+            <TopNav user={userName} role="customer" activeTab={activeTab} setActiveTab={setActiveTab} onLogout={onLogout} />
 
-            <div style={{ padding: '24px', maxWidth: '700px', margin: '0 auto' }}>
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-                    <button onClick={() => setActiveTab('browse')} style={{
-                        flex: 1, padding: '9px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
-                        border: activeTab === 'browse' ? '1px solid #1a1a2e' : '1px solid #e2e8f0',
-                        background: activeTab === 'browse' ? '#1a1a2e' : 'white',
-                        color: activeTab === 'browse' ? '#f0c040' : '#718096'
-                    }}>Browse Salons</button>
-                    <button onClick={() => setActiveTab('bookings')} style={{
-                        flex: 1, padding: '9px', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer',
-                        border: activeTab === 'bookings' ? '1px solid #1a1a2e' : '1px solid #e2e8f0',
-                        background: activeTab === 'bookings' ? '#1a1a2e' : 'white',
-                        color: activeTab === 'bookings' ? '#f0c040' : '#718096'
-                    }}>My Bookings</button>
-                </div>
-
+            <main style={{ width: '100%', margin: '0' }}>
                 {activeTab === 'browse' && (
                     <>
-                        <input
-                            value={search}
-                            onChange={e => setSearch(e.target.value)}
-                            placeholder="Search salons..."
-                            style={{ width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid #cbd5e0', borderRadius: '8px', marginBottom: '16px', background: 'white', color: '#1a202c' }}
-                        />
-
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
-                    {AREAS.map(a => (
-                        <div key={a} onClick={() => setArea(a)} style={{
-                            padding: '7px 16px', borderRadius: '20px', fontSize: '12px', cursor: 'pointer',
-                            background: area === a ? '#1a1a2e' : 'white',
-                            color: area === a ? '#f0c040' : '#718096',
-                            border: area === a ? '1px solid #1a1a2e' : '1px solid #e2e8f0'
-                        }}>{a}</div>
-                    ))}
-                </div>
-
-                <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1a202c', marginBottom: '12px' }}>
-                    {filtered.length} salon{filtered.length !== 1 ? 's' : ''} nearby
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {filtered.map(salon => {
-                        const q = queueInfo[salon.id]
-                        const wait = q ? q.estimatedWaitMinutes : 0
-                        const wc = waitColor(wait)
-                        return (
-                            <div key={salon.id} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 20px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-                                    <div>
-                                        <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a202c' }}>{salon.name}</div>
-                                        <div style={{ fontSize: '12px', color: '#718096', marginTop: '2px' }}>📍 {salon.area}</div>
-                                    </div>
-                                    <div style={{ padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 'bold', background: wc.bg, color: wc.text }}>
-                                        {wait} min wait
-                                    </div>
-                                </div>
-                                <div style={{ display: 'flex', gap: '16px' }}>
-                                    <span style={{ fontSize: '12px', color: '#718096' }}>👥 {q ? q.totalInQueue : 0} in queue</span>
-                                    <span style={{ fontSize: '12px', color: '#718096' }}>{formatSalonRating(salon)}</span>
-                                </div>
-                                <button onClick={() => openModal(salon)} style={{
-                                    marginTop: '10px', width: '100%', padding: '9px', background: '#1a1a2e',
-                                    color: '#f0c040', border: 'none', borderRadius: '8px', fontSize: '13px', cursor: 'pointer'
-                                }}>Book appointment</button>
+                        <div style={{ background: darkPanel, borderBottom: `1px solid ${darkBorder}`, display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px', flexWrap: 'wrap', padding: '12px 20px' }}>
+                            <input
+                                value={search}
+                                onChange={e => setSearch(e.target.value)}
+                                placeholder="Search salons..."
+                                style={{ ...darkInputStyle, flex: '1 1 260px' }}
+                            />
+                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                {AREAS.map(a => (
+                                    <button key={a} onClick={() => setArea(a)} style={{
+                                        padding: '8px 14px',
+                                        borderRadius: '999px',
+                                        fontSize: '12px',
+                                        cursor: 'pointer',
+                                        background: area === a ? darkCard : darkPanel,
+                                        color: area === a ? gold : 'white',
+                                        border: area === a ? `1px solid ${darkCard}` : `1px solid ${darkBorder}`,
+                                        fontWeight: 'bold'
+                                    }}>{a}</button>
+                                ))}
                             </div>
-                        )
-                    })}
-                </div>
+                        </div>
 
+                        <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'white', margin: '0 20px 12px' }}>
+                            {filtered.length} salon{filtered.length !== 1 ? 's' : ''} nearby
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '12px', padding: '0 20px 28px' }}>
+                            {filtered.map(salon => {
+                                const q = queueInfo[salon.id]
+                                const wait = q ? q.estimatedWaitMinutes : 0
+                                const wc = waitColor(wait)
+                                return (
+                                    <div key={salon.id} style={{ background: darkPanel, border: `1px solid ${darkBorder}`, borderLeft: `2px solid ${gold}`, borderRadius: '8px', padding: '16px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
+                                            <div>
+                                                <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'white' }}>{salon.name}</div>
+                                                <div style={{ fontSize: '12px', color: 'white', marginTop: '4px' }}>⌾ {salon.area}</div>
+                                            </div>
+                                            <div style={{ padding: '6px 10px', borderRadius: '999px', fontSize: '12px', fontWeight: 'bold', background: wc.bg, color: wc.text }}>
+                                                {wait} min
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
+                                            <span style={{ fontSize: '11px', color: '#9dc8ff', background: '#06386c', borderRadius: '999px', padding: '5px 8px' }}>♧ {q ? q.totalInQueue : 0} in queue</span>
+                                            <span style={{ fontSize: '11px', color: 'white', background: '#242421', borderRadius: '999px', padding: '5px 8px' }}>{formatSalonRating(salon)}</span>
+                                        </div>
+                                        <button onClick={() => openModal(salon)} style={{ ...darkPageButton, width: '100%', padding: '10px' }}>Book appointment</button>
+                                    </div>
+                                )
+                            })}
+                        </div>
                     </>
                 )}
 
                 {activeTab === 'bookings' && (
                     !lastPhone ? (
-                        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '18px', fontSize: '13px', color: '#718096', textAlign: 'center' }}>
+                        <div style={{ background: darkPanel, border: `1px solid ${darkBorder}`, borderRadius: '8px', fontSize: '14px', color: 'white', textAlign: 'center', padding: '28px', margin: '20px' }}>
                             Make a booking first to see your history here.
                         </div>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: '12px', padding: '20px' }}>
                             {bookingHistory.map(booking => {
                                 const sc = statusColor(booking.status)
                                 return (
-                                    <div key={booking.id} style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 20px' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '8px' }}>
+                                    <div key={booking.id} style={{ background: darkPanel, border: `1px solid ${darkBorder}`, borderRadius: '8px', padding: '16px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginBottom: '10px' }}>
                                             <div>
-                                                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a202c' }}>{booking.salon?.name || booking.salonName}</div>
-                                                <div style={{ fontSize: '12px', color: '#718096', marginTop: '2px' }}>{booking.service} with {booking.barber?.name || booking.barberName}</div>
+                                                <div style={{ fontSize: '16px', fontWeight: 'bold', color: 'white' }}>{booking.salon?.name || booking.salonName}</div>
+                                                <div style={{ fontSize: '12px', color: darkMuted, marginTop: '4px' }}>{booking.service} · {booking.barber?.name || booking.barberName}</div>
                                             </div>
-                                            <div style={{ padding: '4px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', background: sc.bg, color: sc.text }}>
+                                            <div style={{ padding: '5px 10px', borderRadius: '999px', fontSize: '11px', fontWeight: 'bold', background: sc.bg, color: sc.text }}>
                                                 {booking.status}
                                             </div>
                                         </div>
-                                        <div style={{ fontSize: '12px', color: '#718096' }}>{formatBookingDate(booking)}</div>
+                                        <div style={{ fontSize: '12px', color: darkMuted }}>{formatBookingDate(booking)}</div>
                                     </div>
                                 )
                             })}
                         </div>
                     )
                 )}
-            </div>
+            </main>
 
-            {/* Booking Modal */}
             {modalSalon && (
                 <div onClick={(e) => e.target === e.currentTarget && setModalSalon(null)} style={{
-                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.45)',
+                    position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.58)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: '20px'
                 }}>
-                    <div style={{ background: 'white', borderRadius: '12px', padding: '24px', width: '100%', maxWidth: '380px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                            <span style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a202c' }}>{modalSalon.name}</span>
-                            <button onClick={() => setModalSalon(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#718096' }}>✕</button>
+                    <div style={{ background: darkPanel, border: `1px solid ${darkBorder}`, borderRadius: '8px', padding: '18px', width: '100%', maxWidth: '270px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 24px 60px rgba(0,0,0,0.28)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                            <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'white' }}>Book at {modalSalon.name}</div>
+                            <button onClick={() => setModalSalon(null)} style={{ background: darkPanel, border: `1px solid ${darkBorder}`, borderRadius: '7px', fontSize: '18px', cursor: 'pointer', color: 'white', width: '44px', height: '34px' }}>?</button>
                         </div>
 
-                        <div style={{ marginBottom: '16px' }}>
-                            <div style={{ fontSize: '12px', color: '#718096', marginBottom: '8px', fontWeight: 'bold' }}>Recent reviews</div>
+                        <div style={{ marginBottom: '14px' }}>
+                            <div style={{ fontSize: '11px', color: 'white', marginBottom: '8px' }}>Recent reviews</div>
                             {recentReviews.length === 0 ? (
-                                <div style={{ fontSize: '12px', color: '#718096', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
-                                    No reviews yet.
-                                </div>
+                                <div style={{ fontSize: '11px', color: 'white', background: '#242421', borderRadius: '6px', padding: '10px' }}>No reviews yet.</div>
                             ) : (
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     {recentReviews.map(review => (
-                                        <div key={review.id || `${review.customerName}-${review.rating}-${review.comment}`} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                                        <div key={review.id || `${review.customerName}-${review.rating}-${review.comment}`} style={{ background: '#242421', borderRadius: '6px', padding: '10px' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', marginBottom: '4px' }}>
-                                                <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#1a202c' }}>{review.customerName || 'Customer'}</span>
-                                                <span style={{ fontSize: '12px', color: '#f0c040' }}>{'★'.repeat(review.rating || 0)}</span>
+                                                <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'white' }}>{review.customerName || 'Customer'}</span>
+                                                <span style={{ fontSize: '12px', color: gold }}>{'?'.repeat(review.rating || 0)}</span>
                                             </div>
-                                            <div style={{ fontSize: '12px', color: '#718096', lineHeight: '1.35' }}>{review.comment || 'No comment provided.'}</div>
+                                            <div style={{ fontSize: '11px', color: 'white', lineHeight: '1.35' }}>{review.comment || 'No comment provided.'}</div>
                                         </div>
                                     ))}
                                 </div>
@@ -400,74 +659,67 @@ function CustomerView({ userName, token, onLogout }) {
 
                         {!success ? (
                             <>
-                                <div style={{ fontSize: '12px', color: '#718096', marginBottom: '6px' }}>Phone number</div>
+                                <div style={{ fontSize: '11px', color: 'white', marginBottom: '6px' }}>Phone number</div>
                                 <input value={form.customerPhone} onChange={e => setForm({ ...form, customerPhone: e.target.value })}
                                        placeholder="98765 43210"
-                                       style={{ width: '100%', padding: '10px 12px', fontSize: '14px', border: '1px solid #cbd5e0', borderRadius: '8px', marginBottom: '14px', background: 'white', color: '#1a202c' }} />
+                                       style={{ ...darkInputStyle, width: '100%', boxSizing: 'border-box', marginBottom: '14px' }} />
 
-                                <div style={{ fontSize: '12px', color: '#718096', marginBottom: '8px' }}>Select service</div>
+                                <div style={{ fontSize: '11px', color: 'white', marginBottom: '8px' }}>Select service</div>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '14px' }}>
                                     {services.map(service => (
-                                        <div key={service.id} onClick={() => setForm({ ...form, service: service.serviceName })} style={{
-                                            padding: '8px', border: '1px solid', borderRadius: '8px', fontSize: '13px', cursor: 'pointer', textAlign: 'center',
-                                            borderColor: form.service === service.serviceName ? '#1a1a2e' : '#cbd5e0',
-                                            background: form.service === service.serviceName ? '#eeedfe' : 'white',
-                                            color: form.service === service.serviceName ? '#1a1a2e' : '#718096'
-                                        }}>{service.serviceName} — ₹{service.price}</div>
-                                    ))}
-                                </div>
-
-                                <div style={{ fontSize: '12px', color: '#718096', marginBottom: '8px' }}>Select barber</div>
-                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '18px' }}>
-                                    {barbers.map(b => (
-                                        <div key={b.id} onClick={() => b.status === 'AVAILABLE' && setForm({ ...form, barberId: b.id })} style={{
-                                            padding: '8px 14px', border: '2px solid', borderRadius: '8px', fontSize: '13px', textAlign: 'center',
-                                            cursor: b.status === 'BUSY' ? 'not-allowed' : 'pointer',
-                                            borderColor: form.barberId === b.id ? '#1a1a2e' : '#e2e8f0',
-                                            background: form.barberId === b.id ? '#eeedfe' : 'white',
-                                            color: b.status === 'BUSY' ? '#a0aec0' : '#1a202c'
+                                        <button key={service.id} onClick={() => setForm({ ...form, service: service.serviceName })} style={{
+                                            padding: '10px', border: '1px solid', borderRadius: '7px', fontSize: '12px', cursor: 'pointer', textAlign: 'center',
+                                            borderColor: form.service === service.serviceName ? '#f8fafc' : darkBorder,
+                                            background: form.service === service.serviceName ? '#f8fafc' : darkPanel,
+                                            color: form.service === service.serviceName ? '#111827' : 'white'
                                         }}>
-                                            <div style={{ fontWeight: 'bold' }}>{b.name}</div>
-                                            <div style={{ fontSize: '10px', color: b.status === 'AVAILABLE' ? '#3b6d11' : '#a32d2d' }}>
-                                                {b.status === 'AVAILABLE' ? 'Available' : 'Busy'}
-                                            </div>
-                                        </div>
+                                            <div style={{ fontWeight: 'bold', marginBottom: '3px' }}>{service.serviceName}</div>
+                                            <div style={{ fontSize: '10px' }}>?{service.price}</div>
+                                        </button>
                                     ))}
                                 </div>
 
-                                <button onClick={confirmBooking} style={{
-                                    width: '100%', padding: '10px', background: '#1a1a2e', color: '#f0c040',
-                                    border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer'
-                                }}>Confirm booking</button>
+                                <div style={{ fontSize: '11px', color: 'white', marginBottom: '8px' }}>Select barber</div>
+                                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '14px' }}>
+                                    {barbers.map(b => (
+                                        <button key={b.id} onClick={() => b.status === 'AVAILABLE' && setForm({ ...form, barberId: b.id })} style={{
+                                            padding: '8px 12px', border: '1px solid', borderRadius: '7px', fontSize: '11px', textAlign: 'center',
+                                            cursor: b.status === 'BUSY' ? 'not-allowed' : 'pointer', borderColor: form.barberId === b.id ? gold : darkBorder,
+                                            background: darkPanel, color: b.status === 'BUSY' ? '#a0aec0' : 'white'
+                                        }}>
+                                            <div>{b.name}</div>
+                                            <span style={{ color: b.status === 'AVAILABLE' ? '#48bb78' : '#E24B4A', fontSize: '10px' }}>{b.status === 'AVAILABLE' ? 'Available' : 'Busy'}</span>
+                                        </button>
+                                    ))}
+                                </div>
+
+                                <button onClick={confirmBooking} style={{ ...darkPageButton, width: '100%', padding: '10px' }}>Confirm booking</button>
                             </>
                         ) : (
                             <>
-                                <div style={{ background: '#eaf3de', border: '1px solid #c0dd97', borderRadius: '8px', padding: '14px', fontSize: '13px', color: '#3b6d11', marginBottom: '14px' }}>
-                                    ✅ Booking confirmed at <strong>{modalSalon.name}</strong>! You'll get a WhatsApp reminder 10 min before your turn.
+                                <div style={{ background: '#14351f', border: '1px solid #276749', borderRadius: '8px', padding: '12px', fontSize: '12px', color: '#9ae6b4', marginBottom: '14px' }}>
+                                    ? Booking confirmed at <strong>{modalSalon.name}</strong>! You'll get a WhatsApp reminder 10 min before your turn.
                                 </div>
 
                                 {reviewSubmitted ? (
-                                    <div style={{ background: '#1a1a2e', color: '#f0c040', borderRadius: '8px', padding: '12px', fontSize: '13px', textAlign: 'center', fontWeight: 'bold' }}>
+                                    <div style={{ background: darkCard, color: gold, borderRadius: '8px', padding: '12px', fontSize: '13px', textAlign: 'center', fontWeight: 'bold' }}>
                                         Thanks for your feedback!
                                     </div>
                                 ) : (
-                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
-                                        <div style={{ fontSize: '12px', color: '#718096', marginBottom: '8px', fontWeight: 'bold' }}>Leave a review</div>
+                                    <div style={{ border: `1px solid ${darkBorder}`, borderRadius: '8px', padding: '12px' }}>
+                                        <div style={{ fontSize: '12px', color: 'white', marginBottom: '8px', fontWeight: 'bold' }}>Leave a review</div>
                                         <div style={{ display: 'flex', gap: '4px', marginBottom: '10px' }}>
                                             {[1, 2, 3, 4, 5].map(star => (
                                                 <button key={star} onClick={() => setSelectedRating(star)} style={{
                                                     background: 'transparent', border: 'none', cursor: 'pointer', padding: '0 2px',
-                                                    color: star <= selectedRating ? '#f0c040' : '#cbd5e0', fontSize: '22px', lineHeight: 1
-                                                }}>★</button>
+                                                    color: star <= selectedRating ? gold : '#cbd5e0', fontSize: '24px', lineHeight: 1
+                                                }}>?</button>
                                             ))}
                                         </div>
                                         <textarea value={reviewComment} onChange={e => setReviewComment(e.target.value)}
                                                   placeholder="Share your experience..."
-                                                  style={{ width: '100%', minHeight: '72px', resize: 'vertical', padding: '10px 12px', fontSize: '13px', border: '1px solid #cbd5e0', borderRadius: '8px', marginBottom: '10px', background: 'white', color: '#1a202c' }} />
-                                        <button onClick={submitReview} style={{
-                                            width: '100%', padding: '9px', background: '#1a1a2e', color: '#f0c040',
-                                            border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer'
-                                        }}>Submit review</button>
+                                                  style={{ ...darkInputStyle, width: '100%', boxSizing: 'border-box', minHeight: '76px', resize: 'vertical', marginBottom: '10px' }} />
+                                        <button onClick={submitReview} style={{ ...darkPageButton, width: '100%' }}>Submit review</button>
                                     </div>
                                 )}
                             </>
@@ -488,11 +740,15 @@ function OwnerView({ salonName, salonId, token, onLogout }) {
     const [newService, setNewService] = useState({ serviceName: '', price: '' })
     const [showAnalytics, setShowAnalytics] = useState(false)
     const [analyticsData, setAnalyticsData] = useState(null)
+    const [ownerReviews, setOwnerReviews] = useState([])
+    const [ownerRating, setOwnerRating] = useState(null)
 
     useEffect(() => {
         fetchBarbers()
         fetchQueue()
         fetchServices()
+        fetchOwnerReviews()
+        fetchOwnerAverage()
     }, [])
 
     const fetchBarbers = () => {
@@ -508,6 +764,21 @@ function OwnerView({ salonName, salonId, token, onLogout }) {
 
     const fetchServices = () => {
         axios.get(`${API}/services/salon/${salonId}`).then(res => setServices(res.data))
+    }
+
+    const fetchOwnerReviews = () => {
+        axios.get(`${API}/reviews/salon/${salonId}`).then(res => {
+            const reviews = [...res.data].sort((a, b) => {
+                const aTime = new Date(a.createdAt || a.reviewDate || a.date || 0).getTime()
+                const bTime = new Date(b.createdAt || b.reviewDate || b.date || 0).getTime()
+                return bTime - aTime || (b.id || 0) - (a.id || 0)
+            })
+            setOwnerReviews(reviews.slice(0, 3))
+        }).catch(() => setOwnerReviews([]))
+    }
+
+    const fetchOwnerAverage = () => {
+        axios.get(`${API}/reviews/salon/${salonId}/average`).then(res => setOwnerRating(res.data)).catch(() => setOwnerRating({ average: 0, count: 0 }))
     }
 
     const handlePatchError = (err) => {
@@ -565,85 +836,86 @@ function OwnerView({ salonName, salonId, token, onLogout }) {
     const avgWait = queue.length > 0 ? queue.length * 15 : 0
     const peakHours = analyticsData?.peakHours || []
     const maxPeakBookings = Math.max(...peakHours.map(hour => hour.bookingCount || 0), 0)
+    const revenue = analyticsData?.totalRevenue || 0
+    const ratingLabel = ownerRating?.count ? Number(ownerRating.average || 0).toFixed(1) : 'N/A'
 
     return (
-        <div style={{ minHeight: '100vh', background: '#f0f4f8', fontFamily: 'Arial' }}>
-            <TopNav brand={salonName} user="Owner Dashboard" onLogout={onLogout} />
+        <div style={{ minHeight: '100vh', background: darkBg, fontFamily: 'Arial, system-ui, sans-serif', color: 'white' }}>
+            <TopNav user={salonName} role="owner" onLogout={onLogout} />
 
-            <div style={{ padding: '24px', maxWidth: '800px', margin: '0 auto' }}>
+            <section style={{ background: '#17172b', color: 'white', padding: '24px 22px 22px' }}>
+                <div style={{ width: '100%', margin: '0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                    <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#9ae6b4', fontSize: '12px', fontWeight: 'bold', marginBottom: '8px' }}>
+                            <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#48bb78' }}></span> Live dashboard
+                        </div>
+                        <h1 style={{ margin: 0, color: 'white', fontSize: '30px' }}>{salonName}</h1>
+                    </div>
+                    <button onClick={toggleAnalytics} style={{ ...darkPageButton, color: 'white' }}>
+                        {showAnalytics ? 'Hide Analytics' : 'View Analytics'}
+                    </button>
+                </div>
+            </section>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '20px' }}>
-                    <div style={{ background: '#e2e8f0', borderRadius: '8px', padding: '14px 16px' }}>
-                        <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px' }}>Today's bookings</div>
-                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a202c' }}>{bookingsToday}</div>
-                    </div>
-                    <div style={{ background: '#e2e8f0', borderRadius: '8px', padding: '14px 16px' }}>
-                        <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px' }}>In queue</div>
-                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a202c' }}>{queue.length}</div>
-                    </div>
-                    <div style={{ background: '#e2e8f0', borderRadius: '8px', padding: '14px 16px' }}>
-                        <div style={{ fontSize: '12px', color: '#718096', marginBottom: '4px' }}>Avg wait</div>
-                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1a202c' }}>{avgWait}m</div>
-                    </div>
+            <main style={{ padding: '24px', width: '100%', margin: '0' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '14px' }}>
+                    {[
+                        ['Bookings today', bookingsToday],
+                        ['In queue', queue.length],
+                        ['Revenue', `₹${revenue}`],
+                        ['Rating', ratingLabel]
+                    ].map(([label, value]) => (
+                        <div key={label} style={{ background: darkCard, color: 'white', border: `1px solid ${darkBorder}`, borderRadius: '7px', padding: '14px', textAlign: 'center' }}>
+                            <div style={{ fontSize: '11px', color: darkMuted, marginTop: '6px' }}>{label}</div>
+                            <div style={{ fontSize: '24px', fontWeight: 'bold', color: gold }}>{value}</div>
+                        </div>
+                    ))}
                 </div>
 
-                <button onClick={toggleAnalytics} style={{
-                    width: '100%', padding: '10px', background: '#1a1a2e', color: '#f0c040',
-                    border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: 'bold',
-                    cursor: 'pointer', marginBottom: '14px'
-                }}>
-                    {showAnalytics ? 'Hide Analytics' : 'View Analytics'}
-                </button>
-
                 {showAnalytics && analyticsData && (
-                    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 18px', marginBottom: '14px' }}>
-                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1a202c', marginBottom: '12px' }}>Analytics</div>
+                    <div style={{ background: darkPanel, border: `1px solid ${darkBorder}`, borderRadius: '8px', padding: '16px', marginBottom: '16px' }}>
+                        <div style={{ fontSize: '16px', fontWeight: 'bold', color: 'white', marginBottom: '14px' }}>Analytics</div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginBottom: '12px' }}>
-                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
-                                <div style={{ fontSize: '11px', color: '#718096', marginBottom: '4px' }}>Bookings today</div>
-                                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a202c' }}>{analyticsData.totalBookingsToday || 0}</div>
-                            </div>
-                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
-                                <div style={{ fontSize: '11px', color: '#718096', marginBottom: '4px' }}>Completed</div>
-                                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a202c' }}>{analyticsData.completedToday || 0}</div>
-                            </div>
-                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
-                                <div style={{ fontSize: '11px', color: '#718096', marginBottom: '4px' }}>Pending now</div>
-                                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a202c' }}>{analyticsData.pendingNow || 0}</div>
-                            </div>
-                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
-                                <div style={{ fontSize: '11px', color: '#718096', marginBottom: '4px' }}>Revenue</div>
-                                <div style={{ fontSize: '20px', fontWeight: 'bold', color: '#1a202c' }}>₹{analyticsData.totalRevenue || 0}</div>
-                            </div>
+                            {[
+                                ['Bookings today', analyticsData.totalBookingsToday || 0],
+                                ['Completed', analyticsData.completedToday || 0],
+                                ['Pending now', analyticsData.pendingNow || 0],
+                                ['Revenue', `₹${analyticsData.totalRevenue || 0}`]
+                            ].map(([label, value]) => (
+                                <div key={label} style={{ background: '#242421', border: `1px solid ${darkBorder}`, borderRadius: '8px', padding: '12px' }}>
+                                    <div style={{ fontSize: '11px', color: darkMuted, marginBottom: '4px' }}>{label}</div>
+                                    <div style={{ fontSize: '20px', fontWeight: 'bold', color: gold }}>{value}</div>
+                                </div>
+                            ))}
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '14px' }}>
-                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
-                                <div style={{ fontSize: '11px', color: '#718096', marginBottom: '4px' }}>Top service</div>
-                                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a202c' }}>{analyticsData.topService || 'N/A'}</div>
+                            <div style={{ background: '#242421', border: `1px solid ${darkBorder}`, borderRadius: '8px', padding: '12px' }}>
+                                <div style={{ fontSize: '11px', color: darkMuted, marginBottom: '4px' }}>Top service</div>
+                                <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'white' }}>{analyticsData.topService || 'N/A'}</div>
                             </div>
-                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
-                                <div style={{ fontSize: '11px', color: '#718096', marginBottom: '4px' }}>Top barber</div>
-                                <div style={{ fontSize: '15px', fontWeight: 'bold', color: '#1a202c' }}>{analyticsData.topBarber || 'N/A'}</div>
+                            <div style={{ background: '#242421', border: `1px solid ${darkBorder}`, borderRadius: '8px', padding: '12px' }}>
+                                <div style={{ fontSize: '11px', color: darkMuted, marginBottom: '4px' }}>Top barber</div>
+                                <div style={{ fontSize: '15px', fontWeight: 'bold', color: 'white' }}>{analyticsData.topBarber || 'N/A'}</div>
                             </div>
                         </div>
 
-                        <div style={{ fontSize: '12px', color: '#718096', marginBottom: '10px', fontWeight: 'bold' }}>Peak hours</div>
+                        <div style={{ fontSize: '12px', color: darkMuted, marginBottom: '10px', fontWeight: 'bold' }}>Peak hours</div>
                         {maxPeakBookings === 0 ? (
-                            <div style={{ fontSize: '13px', color: '#a0aec0', textAlign: 'center', padding: '16px 0', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#f8fafc' }}>
+                            <div style={{ fontSize: '13px', color: darkMuted, textAlign: 'center', padding: '16px 0', border: `1px solid ${darkBorder}`, borderRadius: '8px', background: '#242421' }}>
                                 No booking data for today yet
                             </div>
                         ) : (
-                            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', minHeight: '112px', padding: '12px', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#f8fafc', overflowX: 'auto' }}>
+                            <div style={{ display: 'flex', alignItems: 'flex-end', gap: '10px', minHeight: '112px', padding: '12px', border: `1px solid ${darkBorder}`, borderRadius: '8px', background: '#242421', overflowX: 'auto' }}>
                                 {peakHours.map(hour => {
                                     const count = hour.bookingCount || 0
                                     const barHeight = maxPeakBookings ? Math.max((count / maxPeakBookings) * 80, count > 0 ? 8 : 0) : 0
                                     return (
                                         <div key={hour.hour} style={{ minWidth: '42px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
-                                            <div style={{ fontSize: '11px', color: '#718096' }}>{count}</div>
-                                            <div style={{ width: '24px', height: `${barHeight}px`, background: '#1a1a2e', borderRadius: '6px 6px 0 0', border: '1px solid #f0c040' }}></div>
-                                            <div style={{ fontSize: '11px', color: '#718096' }}>{hour.hour}</div>
+                                            <div style={{ fontSize: '11px', color: darkMuted }}>{count}</div>
+                                            <div style={{ width: '24px', height: `${barHeight}px`, background: navy, borderRadius: '6px 6px 0 0', border: `1px solid ${gold}` }}></div>
+                                            <div style={{ fontSize: '11px', color: darkMuted }}>{hour.hour}</div>
                                         </div>
                                     )
                                 })}
@@ -652,91 +924,86 @@ function OwnerView({ salonName, salonId, token, onLogout }) {
                     </div>
                 )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px' }}>
-
-                    <div>
-                        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 18px', marginBottom: '14px' }}>
-                            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1a202c', marginBottom: '12px' }}>👥 Barbers</div>
-                            {barbers.map(b => (
-                                <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 0', borderBottom: '1px solid #f0f4f8' }}>
-                                    <div style={{ width: '34px', height: '34px', borderRadius: '50%', background: '#eeedfe', color: '#534ab7', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '13px', fontWeight: 'bold' }}>
-                                        {b.name.slice(0, 2).toUpperCase()}
-                                    </div>
-                                    <span style={{ flex: 1, fontSize: '13px', fontWeight: 'bold', color: '#1a202c' }}>{b.name}</span>
-                                    <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: b.status === 'AVAILABLE' ? '#639922' : '#E24B4A' }}></span>
-                                    <button onClick={() => toggleBarber(b)} style={{
-                                        padding: '5px 10px', fontSize: '11px', borderRadius: '6px', cursor: 'pointer',
-                                        border: '1px solid #cbd5e0', background: '#f8fafc', color: '#4a5568'
-                                    }}>
-                                        {b.status === 'AVAILABLE' ? 'Mark busy' : 'Mark free'}
-                                    </button>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+                    <div style={{ background: darkCard, border: `1px solid ${darkBorder}`, borderRadius: '7px', padding: '16px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'white', marginBottom: '12px' }}>♧ Barbers</div>
+                        {barbers.map(b => (
+                            <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                                <div style={{ width: '26px', height: '26px', borderRadius: '50%', background: '#0b3a71', color: '#9dc8ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: 'bold' }}>
+                                    {b.name.slice(0, 2).toUpperCase()}
                                 </div>
-                            ))}
-                        </div>
-
-                        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 18px', marginBottom: '14px' }}>
-                            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1a202c', marginBottom: '12px' }}>Service pricing</div>
-                            {services.length === 0 && (
-                                <div style={{ fontSize: '13px', color: '#a0aec0', textAlign: 'center', padding: '12px 0' }}>No services added</div>
-                            )}
-                            {services.map(service => (
-                                <div key={service.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '9px 0', borderBottom: '1px solid #f0f4f8' }}>
-                                    <span style={{ fontSize: '13px', fontWeight: 'bold', color: '#1a202c' }}>{service.serviceName}</span>
-                                    <span style={{ fontSize: '13px', color: '#718096' }}>₹{service.price}</span>
+                                <div style={{ flex: 1 }}>
+                                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'white' }}>{b.name}</div>
+                                    <div style={{ display: 'inline-block', marginTop: '3px', padding: '2px 6px', borderRadius: '999px', fontSize: '10px', background: b.status === 'AVAILABLE' ? '#0f7a3b' : '#7a1d1d', color: b.status === 'AVAILABLE' ? '#9ae6b4' : '#feb2b2' }}>{b.status === 'AVAILABLE' ? 'Available' : 'Busy'}</div>
                                 </div>
-                            ))}
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 90px', gap: '8px', marginTop: '14px' }}>
-                                <input
-                                    value={newService.serviceName}
-                                    onChange={e => setNewService({ ...newService, serviceName: e.target.value })}
-                                    placeholder="Service name"
-                                    style={{ padding: '9px 10px', fontSize: '13px', border: '1px solid #cbd5e0', borderRadius: '8px', background: 'white', color: '#1a202c' }}
-                                />
-                                <input
-                                    type="number"
-                                    value={newService.price}
-                                    onChange={e => setNewService({ ...newService, price: e.target.value })}
-                                    placeholder="Price"
-                                    style={{ padding: '9px 10px', fontSize: '13px', border: '1px solid #cbd5e0', borderRadius: '8px', background: 'white', color: '#1a202c' }}
-                                />
+                                <button onClick={() => toggleBarber(b)} style={{ ...darkPageButton, padding: '8px 14px' }}>
+                                    {b.status === 'AVAILABLE' ? 'Mark busy' : 'Mark free'}
+                                </button>
                             </div>
-                            <button onClick={addService} style={{
-                                width: '100%', padding: '9px', background: '#1a1a2e', color: '#f0c040',
-                                border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold',
-                                cursor: 'pointer', marginTop: '8px'
-                            }}>Add service</button>
-                        </div>
-
-                        <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 18px' }}>
-                            <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1a202c', marginBottom: '12px' }}>🔔 Notifications</div>
-                            <div style={{ fontSize: '12px', color: '#718096', padding: '6px 0', borderBottom: '1px solid #f0f4f8' }}>📅 New bookings auto-update queue below</div>
-                            <div style={{ fontSize: '12px', color: '#718096', padding: '6px 0' }}>⏱️ Wait time recalculates automatically</div>
-                        </div>
+                        ))}
                     </div>
 
-                    <div style={{ background: 'white', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '16px 18px' }}>
-                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: '#1a202c', marginBottom: '12px' }}>📋 Live queue</div>
-                        {queue.length === 0 && (
-                            <div style={{ fontSize: '13px', color: '#a0aec0', textAlign: 'center', padding: '20px 0' }}>Queue is empty</div>
-                        )}
+                    <div style={{ background: darkCard, border: `1px solid ${darkBorder}`, borderRadius: '7px', padding: '16px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'white', marginBottom: '12px' }}>≡ Live Queue</div>
+                        {queue.length === 0 && <div style={{ fontSize: '13px', color: darkMuted, textAlign: 'center', padding: '20px 0' }}>Queue is empty</div>}
                         {queue.map((booking, i) => (
-                            <div key={booking.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 0', borderBottom: '1px solid #f0f4f8' }}>
-                                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#1a1a2e', color: '#f0c040', fontSize: '11px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <div key={booking.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                                <div style={{ width: '22px', height: '22px', borderRadius: '50%', background: '#20203a', color: gold, fontSize: '11px', fontWeight: 'bold', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                                     {i + 1}
                                 </div>
                                 <div style={{ flex: 1 }}>
-                                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#1a202c' }}>{booking.customerName}</div>
-                                    <div style={{ fontSize: '11px', color: '#718096' }}>{booking.service} · {booking.barber?.name}</div>
+                                    <div style={{ fontSize: '13px', fontWeight: 'bold', color: 'white' }}>{booking.customerName}</div>
+                                    <div style={{ fontSize: '11px', color: darkMuted }}>{booking.service} · {booking.barber?.name}</div>
                                 </div>
-                                <button onClick={() => completeBooking(booking.id)} style={{
-                                    padding: '5px 10px', fontSize: '11px', borderRadius: '6px', cursor: 'pointer',
-                                    border: '1px solid #c0dd97', background: '#eaf3de', color: '#3b6d11'
-                                }}>Done</button>
+                                <button onClick={() => completeBooking(booking.id)} style={{ ...darkPageButton, padding: '8px 18px' }}>Done</button>
                             </div>
                         ))}
                     </div>
                 </div>
-            </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div style={{ background: darkPanel, border: `1px solid ${darkBorder}`, borderRadius: '7px', padding: '16px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'white', marginBottom: '12px' }}>▤ Service pricing</div>
+                        {services.length === 0 && <div style={{ fontSize: '13px', color: darkMuted, textAlign: 'center', padding: '12px 0' }}>No services added</div>}
+                        {services.map(service => (
+                            <div key={service.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+                                <span style={{ fontSize: '12px', fontWeight: 'bold', color: 'white' }}>{service.serviceName}</span>
+                                <span style={{ fontSize: '12px', color: gold }}>₹{service.price}</span>
+                            </div>
+                        ))}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px', gap: '8px', marginTop: '14px' }}>
+                            <input
+                                value={newService.serviceName}
+                                onChange={e => setNewService({ ...newService, serviceName: e.target.value })}
+                                placeholder="Service name"
+                                style={{ ...darkInputStyle, padding: '10px', fontSize: '13px' }}
+                            />
+                            <input
+                                type="number"
+                                value={newService.price}
+                                onChange={e => setNewService({ ...newService, price: e.target.value })}
+                                placeholder="Price"
+                                style={{ ...darkInputStyle, padding: '10px', fontSize: '13px' }}
+                            />
+                        </div>
+                        <button onClick={addService} style={{ ...darkPageButton, width: '100%', marginTop: '9px' }}>Add service</button>
+                    </div>
+
+                    <div style={{ background: darkPanel, border: `1px solid ${darkBorder}`, borderRadius: '7px', padding: '16px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'white', marginBottom: '12px' }}>☆ Recent reviews</div>
+                        {ownerReviews.length === 0 && <div style={{ fontSize: '13px', color: darkMuted, textAlign: 'center', padding: '20px 0' }}>No reviews yet</div>}
+                        {ownerReviews.map(review => (
+                            <div key={review.id || `${review.customerName}-${review.rating}-${review.comment}`} style={{ background: '#242421', borderRadius: '6px', padding: '10px', marginBottom: '8px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                    <span style={{ fontSize: '13px', fontWeight: 'bold', color: 'white' }}>{review.customerName || 'Customer'}</span>
+                                    <span style={{ fontSize: '12px', color: gold }}>{'★'.repeat(review.rating || 0)}</span>
+                                </div>
+                                <div style={{ fontSize: '12px', color: 'white', lineHeight: '1.4' }}>{review.comment || 'No comment provided.'}</div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </main>
         </div>
     )
 }
@@ -745,6 +1012,8 @@ function OwnerView({ salonName, salonId, token, onLogout }) {
 function App() {
     const [user, setUser] = useState(null)
     const [token, setToken] = useState('')
+    const [authPage, setAuthPage] = useState('landing')
+    const [loginType, setLoginType] = useState('customer')
 
     const handleLogin = (loginData) => {
         setToken(loginData.token)
@@ -758,9 +1027,27 @@ function App() {
     const handleLogout = () => {
         setUser(null)
         setToken('')
+        setAuthPage('login')
     }
 
-    if (!user) return <Login onLogin={handleLogin} />
+    if (!user && authPage === 'landing') {
+        return (
+            <LandingReference
+                onFindSalon={() => {
+                    setLoginType('customer')
+                    setAuthPage('login')
+                }}
+                onOwnerLogin={() => {
+                    setLoginType('owner')
+                    setAuthPage('login')
+                }}
+            />
+        )
+    }
+
+    if (!user) {
+        return <Login onLogin={handleLogin} initialType={loginType} onBack={() => setAuthPage('landing')} />
+    }
 
     if (user.role === 'owner') {
         return <OwnerView salonName={user.name} salonId={user.salonId} token={token} onLogout={handleLogout} />
