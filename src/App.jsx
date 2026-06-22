@@ -128,12 +128,18 @@ function CustomerView({ userName, token, onLogout }) {
     const [activeTab, setActiveTab] = useState('browse')
     const [lastPhone, setLastPhone] = useState('')
     const [bookingHistory, setBookingHistory] = useState([])
+    const [salonRatings, setSalonRatings] = useState({})
+    const [recentReviews, setRecentReviews] = useState([])
+    const [selectedRating, setSelectedRating] = useState(0)
+    const [reviewComment, setReviewComment] = useState('')
+    const [reviewSubmitted, setReviewSubmitted] = useState(false)
 
     useEffect(() => {
         const url = area === 'All' ? `${API}/salons` : `${API}/salons/area/${area}`
         axios.get(url).then(res => {
             setSalons(res.data)
             res.data.forEach(s => fetchQueue(s.id))
+            res.data.forEach(s => fetchSalonAverage(s.id))
         })
     }, [area])
 
@@ -152,6 +158,31 @@ function CustomerView({ userName, token, onLogout }) {
         axios.get(`${API}/bookings/customer/${phone}`).then(res => setBookingHistory(res.data))
     }
 
+    const fetchSalonAverage = (id) => {
+        axios.get(`${API}/reviews/salon/${id}/average`).then(res =>
+            setSalonRatings(prev => ({ ...prev, [id]: res.data }))
+        ).catch(() =>
+            setSalonRatings(prev => ({ ...prev, [id]: { average: 0, count: 0 } }))
+        )
+    }
+
+    const fetchRecentReviews = (id) => {
+        axios.get(`${API}/reviews/salon/${id}`).then(res => {
+            const reviews = [...res.data].sort((a, b) => {
+                const aTime = new Date(a.createdAt || a.reviewDate || a.date || 0).getTime()
+                const bTime = new Date(b.createdAt || b.reviewDate || b.date || 0).getTime()
+                return bTime - aTime || (b.id || 0) - (a.id || 0)
+            })
+            setRecentReviews(reviews.slice(0, 2))
+        }).catch(() => setRecentReviews([]))
+    }
+
+    const formatSalonRating = (salon) => {
+        const rating = salonRatings[salon.id]
+        if (!rating || !rating.count) return '★ No reviews'
+        return `★ ${Number(rating.average || 0).toFixed(1)} (${rating.count} review${rating.count !== 1 ? 's' : ''})`
+    }
+
     const filtered = salons.filter(s =>
         s.name.toLowerCase().includes(search.toLowerCase()) ||
         s.area.toLowerCase().includes(search.toLowerCase())
@@ -161,7 +192,12 @@ function CustomerView({ userName, token, onLogout }) {
         setModalSalon(salon)
         setSuccess(false)
         setServices([])
+        setRecentReviews([])
+        setSelectedRating(0)
+        setReviewComment('')
+        setReviewSubmitted(false)
         setForm({ customerName: userName, customerPhone: '', service: '', barberId: '' })
+        fetchRecentReviews(salon.id)
         axios.get(`${API}/barbers/salon/${salon.id}`).then(res => setBarbers(res.data))
         axios.get(`${API}/services/salon/${salon.id}`).then(res => {
             setServices(res.data)
@@ -204,6 +240,23 @@ function CustomerView({ userName, token, onLogout }) {
             setSuccess(true)
             setLastPhone(form.customerPhone)
             fetchQueue(modalSalon.id)
+        })
+    }
+
+    const submitReview = () => {
+        if (!selectedRating) {
+            alert('Please select a star rating.')
+            return
+        }
+        axios.post(`${API}/reviews`, {
+            salonId: modalSalon.id,
+            customerName: form.customerName,
+            rating: selectedRating,
+            comment: reviewComment
+        }).then(() => {
+            setReviewSubmitted(true)
+            fetchSalonAverage(modalSalon.id)
+            fetchRecentReviews(modalSalon.id)
         })
     }
 
@@ -269,7 +322,7 @@ function CustomerView({ userName, token, onLogout }) {
                                 </div>
                                 <div style={{ display: 'flex', gap: '16px' }}>
                                     <span style={{ fontSize: '12px', color: '#718096' }}>👥 {q ? q.totalInQueue : 0} in queue</span>
-                                    <span style={{ fontSize: '12px', color: '#718096' }}>⭐ {salon.rating}</span>
+                                    <span style={{ fontSize: '12px', color: '#718096' }}>{formatSalonRating(salon)}</span>
                                 </div>
                                 <button onClick={() => openModal(salon)} style={{
                                     marginTop: '10px', width: '100%', padding: '9px', background: '#1a1a2e',
@@ -324,6 +377,27 @@ function CustomerView({ userName, token, onLogout }) {
                             <button onClick={() => setModalSalon(null)} style={{ background: 'none', border: 'none', fontSize: '18px', cursor: 'pointer', color: '#718096' }}>✕</button>
                         </div>
 
+                        <div style={{ marginBottom: '16px' }}>
+                            <div style={{ fontSize: '12px', color: '#718096', marginBottom: '8px', fontWeight: 'bold' }}>Recent reviews</div>
+                            {recentReviews.length === 0 ? (
+                                <div style={{ fontSize: '12px', color: '#718096', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                                    No reviews yet.
+                                </div>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    {recentReviews.map(review => (
+                                        <div key={review.id || `${review.customerName}-${review.rating}-${review.comment}`} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', marginBottom: '4px' }}>
+                                                <span style={{ fontSize: '12px', fontWeight: 'bold', color: '#1a202c' }}>{review.customerName || 'Customer'}</span>
+                                                <span style={{ fontSize: '12px', color: '#f0c040' }}>{'★'.repeat(review.rating || 0)}</span>
+                                            </div>
+                                            <div style={{ fontSize: '12px', color: '#718096', lineHeight: '1.35' }}>{review.comment || 'No comment provided.'}</div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
                         {!success ? (
                             <>
                                 <div style={{ fontSize: '12px', color: '#718096', marginBottom: '6px' }}>Phone number</div>
@@ -367,9 +441,36 @@ function CustomerView({ userName, token, onLogout }) {
                                 }}>Confirm booking</button>
                             </>
                         ) : (
-                            <div style={{ background: '#eaf3de', border: '1px solid #c0dd97', borderRadius: '8px', padding: '14px', fontSize: '13px', color: '#3b6d11' }}>
-                                ✅ Booking confirmed at <strong>{modalSalon.name}</strong>! You'll get a WhatsApp reminder 10 min before your turn.
-                            </div>
+                            <>
+                                <div style={{ background: '#eaf3de', border: '1px solid #c0dd97', borderRadius: '8px', padding: '14px', fontSize: '13px', color: '#3b6d11', marginBottom: '14px' }}>
+                                    ✅ Booking confirmed at <strong>{modalSalon.name}</strong>! You'll get a WhatsApp reminder 10 min before your turn.
+                                </div>
+
+                                {reviewSubmitted ? (
+                                    <div style={{ background: '#1a1a2e', color: '#f0c040', borderRadius: '8px', padding: '12px', fontSize: '13px', textAlign: 'center', fontWeight: 'bold' }}>
+                                        Thanks for your feedback!
+                                    </div>
+                                ) : (
+                                    <div style={{ border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px' }}>
+                                        <div style={{ fontSize: '12px', color: '#718096', marginBottom: '8px', fontWeight: 'bold' }}>Leave a review</div>
+                                        <div style={{ display: 'flex', gap: '4px', marginBottom: '10px' }}>
+                                            {[1, 2, 3, 4, 5].map(star => (
+                                                <button key={star} onClick={() => setSelectedRating(star)} style={{
+                                                    background: 'transparent', border: 'none', cursor: 'pointer', padding: '0 2px',
+                                                    color: star <= selectedRating ? '#f0c040' : '#cbd5e0', fontSize: '22px', lineHeight: 1
+                                                }}>★</button>
+                                            ))}
+                                        </div>
+                                        <textarea value={reviewComment} onChange={e => setReviewComment(e.target.value)}
+                                                  placeholder="Share your experience..."
+                                                  style={{ width: '100%', minHeight: '72px', resize: 'vertical', padding: '10px 12px', fontSize: '13px', border: '1px solid #cbd5e0', borderRadius: '8px', marginBottom: '10px', background: 'white', color: '#1a202c' }} />
+                                        <button onClick={submitReview} style={{
+                                            width: '100%', padding: '9px', background: '#1a1a2e', color: '#f0c040',
+                                            border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: 'bold', cursor: 'pointer'
+                                        }}>Submit review</button>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 </div>
