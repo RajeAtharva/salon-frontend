@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 
-const API = 'http://localhost:8080/api'
+const API = 'https://salon-queue-backend.onrender.com/api'
 const AREAS = ['All', 'Kothrud', 'Wakad', 'Baner', 'Hinjewadi']
 
 const navy = '#1a1a2e'
